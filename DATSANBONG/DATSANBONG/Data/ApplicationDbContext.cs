@@ -8,6 +8,6 @@ namespace DATSANBONG.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options) { }
-        public DbSet<ApplicationUser> users { get; set; }   
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }   
     }
 }

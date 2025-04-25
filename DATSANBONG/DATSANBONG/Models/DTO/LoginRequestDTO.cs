@@ -2,7 +2,7 @@
 {
     public class LoginRequestDTO
     {
-        public string TaiKhoan { get; set; }
-        public string MatKhau { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
     }
 }

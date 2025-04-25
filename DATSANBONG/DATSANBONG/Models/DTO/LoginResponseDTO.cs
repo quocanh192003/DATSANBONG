@@ -2,7 +2,8 @@
 {
     public class LoginResponseDTO
     {
-        public ApplicationUser NguoiDung { get; set; }
+        public NguoiDungDTO User { get; set; }
+        public string Role  { get; set; }
         public string Token { get; set; }
     }
 }
