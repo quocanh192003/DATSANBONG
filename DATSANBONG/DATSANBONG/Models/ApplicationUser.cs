@@ -29,16 +29,16 @@ namespace DATSANBONG.Models
 
         [Required]
         [StringLength(25)]
-        public string TrangThai { get; set; } = "PENDING";
+        public string TrangThai { get; set; }
 
         //[Required]
         //[EmailAddress]
         //[StringLength(50)]
         //public string EMail { get; set; }
 
-        [Required]
-        [StringLength(10)]
-        public string MaVaiTro { get; set; }
+        //[Required]
+        //[StringLength(10)]
+        //public string MaVaiTro { get; set; }
 
         //[ForeignKey("MaVaiTro")]
         //public VaiTro VaiTro { get; set; }
