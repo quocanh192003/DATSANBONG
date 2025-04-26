@@ -34,7 +34,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 builder.Services.AddScoped<IAuthRepositoty, AuthRepository>();
 builder.Services.AddScoped<IEmailService, EmailService>();
-builder.Services.AddScoped<IConfirmRepository, ConfirmRepository>();
+builder.Services.AddScoped<IManageUserRepository, ManageUserRepository>();
+builder.Services.AddScoped<IRepository<ApplicationUser>, Repository<ApplicationUser>>();
 
 var key = builder.Configuration.GetValue<string>("ApiSetting:Secret");
 builder.Services.AddAuthentication(x =>

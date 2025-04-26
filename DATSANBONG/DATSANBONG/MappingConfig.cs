@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using DATSANBONG.Models;
 using DATSANBONG.Models.DTO;
+using Microsoft.AspNetCore.Mvc.ApplicationParts;
 
 namespace DATSANBONG
 {
@@ -9,6 +10,7 @@ namespace DATSANBONG
         public MappingConfig() 
         {
             CreateMap<ApplicationUser, NguoiDungDTO>().ReverseMap();
+            CreateMap<ApplicationUser, ApplicationUserDTO>().ReverseMap();
         }
     }
 }
