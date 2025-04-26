@@ -3,6 +3,8 @@ using DATSANBONG.Data;
 using DATSANBONG.Models;
 using DATSANBONG.Repository;
 using DATSANBONG.Repository.IRepository;
+using DATSANBONG.Services;
+using DATSANBONG.Services.IServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -18,12 +20,20 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
-builder.Services.AddAutoMapper(typeof(MappingConfig).Assembly);
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+// Configure Identity
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = true;
+    options.Tokens.EmailConfirmationTokenProvider = TokenOptions.DefaultEmailProvider;
+    options.Tokens.PasswordResetTokenProvider = TokenOptions.DefaultEmailProvider;
+})
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
-builder.Services.AddScoped<IAuthRepositoty, AuthRepository>();
 
+// Configure AutoMapper and Dependency Injection
+builder.Services.AddAutoMapper(typeof(MappingConfig));
+builder.Services.AddScoped<IAuthRepositoty, AuthRepository>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 
 var key = builder.Configuration.GetValue<string>("ApiSetting:Secret");

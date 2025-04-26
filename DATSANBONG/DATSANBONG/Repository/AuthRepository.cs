@@ -3,8 +3,10 @@ using DATSANBONG.Data;
 using DATSANBONG.Models;
 using DATSANBONG.Models.DTO;
 using DATSANBONG.Repository.IRepository;
+using DATSANBONG.Services.IServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.WebSockets;
 using System.Security.Claims;
@@ -19,14 +21,17 @@ namespace DATSANBONG.Repository
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IMapper _mapper;
         private string secretKey;
+        private readonly IEmailService _emailService;
         public AuthRepository(ApplicationDbContext db, IConfiguration configuration, 
-            UserManager<ApplicationUser> userManager, IMapper mapper, RoleManager<IdentityRole> roleManager)
+            UserManager<ApplicationUser> userManager, IMapper mapper, RoleManager<IdentityRole> roleManager,
+            IEmailService emailService)
         {
             _db = db;
             _userManager = userManager;
             _mapper = mapper;
             secretKey = configuration.GetValue<string>("ApiSetting:Secret");
             _roleManager = roleManager;
+            _emailService = emailService;
         }
 
         public bool IsUniqueUser(string TaiKhoan)
@@ -81,6 +86,11 @@ namespace DATSANBONG.Repository
 
         public async Task<NguoiDungDTO> Register(RegisterRequestDTO model)
         {
+            // Kiểm tra tính hợp lệ của email
+            if (!new EmailAddressAttribute().IsValid(model.Email))
+            {
+                throw new Exception("The specified string is not in the form required for an e-mail address.");
+            }
             ApplicationUser user = new()
             {
                 UserName = model.Username,
@@ -95,6 +105,7 @@ namespace DATSANBONG.Repository
 
             try
             {
+                // Tạo người dùng và kiểm tra kết quả
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
@@ -113,18 +124,31 @@ namespace DATSANBONG.Repository
                         throw new Exception("Error assigning role: " +
                             string.Join("; ", addRoleResult.Errors.Select(e => e.Description)));
                     }
+                    // Xác nhận email
+                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    await _emailService.SendEmail(user.Email, "Email Confirmation", code);
+
                     var userToReturn = _db.ApplicationUsers
                         .FirstOrDefault(u => u.UserName == model.Username);
-                    return _mapper.Map<NguoiDungDTO>(userToReturn);
+                    return new NguoiDungDTO
+                    {
+                        UserName = user.UserName,
+                        Email = user.Email,
+                        ConfirmationMessage = "Please confirm your email with the code that you received!"
+                    };
 
+                }
+                else
+                {
+                    // Ghi nhận và ném các lỗi mật khẩu hoặc bất kỳ lỗi nào khác
+                    string errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                    throw new Exception(errors);
                 }
             }
             catch (Exception e)
             {
-
+                throw new Exception(e.Message);
             }
-
-            return new NguoiDungDTO();
         }
 
     }
