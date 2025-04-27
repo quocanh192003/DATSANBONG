@@ -11,6 +11,7 @@ namespace DATSANBONG
         {
             CreateMap<ApplicationUser, NguoiDungDTO>().ReverseMap();
             CreateMap<ApplicationUser, ApplicationUserDTO>().ReverseMap();
+            CreateMap<SanBong, SanBongDTO>().ReverseMap();
         }
     }
 }
