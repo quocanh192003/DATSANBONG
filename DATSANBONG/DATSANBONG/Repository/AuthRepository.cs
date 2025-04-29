@@ -49,6 +49,13 @@ namespace DATSANBONG.Repository
             var user =_db.ApplicationUsers
                 .FirstOrDefault(u => u.UserName.ToLower() == model.Username.ToLower());
 
+            if (user.TrangThai != "ACTIVE" || !user.EmailConfirmed)
+            {
+                return null;
+            }
+
+
+
             bool isValid = await _userManager.CheckPasswordAsync(user, model.Password);
             if (user == null)
             {
@@ -69,6 +76,7 @@ namespace DATSANBONG.Repository
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.Name, user.Id.ToString()),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(ClaimTypes.Role, roles.FirstOrDefault())
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
@@ -128,8 +136,8 @@ namespace DATSANBONG.Repository
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     await _emailService.SendEmail(user.Email, "Email Confirmation", code);
 
-                    var userToReturn = _db.ApplicationUsers
-                        .FirstOrDefault(u => u.UserName == model.Username);
+                    //var userToReturn = _db.ApplicationUsers
+                    //    .FirstOrDefault(u => u.UserName == model.Username);
                     return new NguoiDungDTO
                     {
                         UserName = user.UserName,
@@ -150,6 +158,7 @@ namespace DATSANBONG.Repository
                 throw new Exception(e.Message);
             }
         }
+
 
     }
 }

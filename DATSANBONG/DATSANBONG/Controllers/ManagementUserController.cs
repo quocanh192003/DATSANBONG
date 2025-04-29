@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Azure;
+using Azure.Core;
 using DATSANBONG.Models;
 using DATSANBONG.Models.DTO;
 using DATSANBONG.Repository.IRepository;
@@ -29,13 +30,13 @@ namespace DATSANBONG.Controllers
             _userManager = userManager;
         }
         // ADMIN CONFIRM USER
-        [HttpPut("confirm_user")]
+        [HttpPut("confirm_user/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Authorize(Roles = "admin", AuthenticationSchemes = "Bearer")]
-        public async Task<ActionResult<APIResponse>> ConfirmUser([FromBody] ConfirmUserDTO request)
+        public async Task<ActionResult<APIResponse>> ConfirmUser(string id, string status)
         {
-            var user = await _manageRepo.ConfirmUser(request);
+            var user = await _manageRepo.ConfirmUser(id, status);
             if (user == null)
             {
                 _apiResponse.IsSuccess = false;
@@ -181,6 +182,28 @@ namespace DATSANBONG.Controllers
                 _apiResponse.ErrorMessages = new List<string> { ex.Message };
                 return BadRequest(_apiResponse);
             }
+        }
+
+
+        // ADMIN LOCK USER (IDENTITY)
+        [HttpPost("lock-unlock/{userId}")]
+        [Authorize(Roles = "admin", AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> LockUnlockUser(string userId)
+        {
+            var response = await _manageRepo.LockUnlockUserAsync(userId);
+            return StatusCode((int)response.Status, response);
+
+        }
+
+
+        // CHỦ SÂN TẠO TÀI KHOẢN NHÂN VIÊN
+        [HttpPost("create_employee")]
+        [Authorize(Roles = "Chủ Sân", AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> AddEmployee(EmlpyeeDTO request)
+        {
+            var response = await _manageRepo.AddEmployee(request);
+            return StatusCode((int)response.Status, response);
+
         }
     }
 
