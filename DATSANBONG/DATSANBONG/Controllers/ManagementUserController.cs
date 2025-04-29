@@ -205,6 +205,36 @@ namespace DATSANBONG.Controllers
             return StatusCode((int)response.Status, response);
 
         }
+
+        // CHỦ SÂN XÓA TÀI KHOẢN NHÂN VIÊN
+        [HttpDelete("remove_employee/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "Chủ Sân", AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> DeleteEmployee(string id)
+        {
+            var response = await _manageRepo.DeleteEmployee(id);
+            return StatusCode((int)response.Status, response);
+        }
+
+        // LẤY RA TẤT CẢ NHÂN VIÊN
+        [HttpGet("employee_get")]
+        [Authorize(Roles = "Chủ Sân", AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> GetAllEmployees()
+        {
+            var response = await _manageRepo.GetAllEmployees();
+            return StatusCode((int)response.Status, response);
+        }
+
+        // LẤY RA TẤT CẢ NHÂN VIÊN
+        [HttpGet("employee_get/{id}")]
+        //[Authorize(Roles = "Chủ Sân", AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> GetEmployees(string id)
+        {
+            var response = await _manageRepo.GetEmployee(id);
+            return StatusCode((int)response.Status, response);
+        }
     }
 
 }

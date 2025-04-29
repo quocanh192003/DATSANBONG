@@ -39,7 +39,7 @@ namespace DATSANBONG.Repository
                 return null;
             }
 
-            var user = await _db.ApplicationUsers.FirstOrDefaultAsync(x =>x.Id == id);
+            var user = await _db.ApplicationUsers.FirstOrDefaultAsync(x => x.Id == id);
 
             if (user == null)
             {
@@ -67,19 +67,19 @@ namespace DATSANBONG.Repository
             }
 
             var status = request.TrangThai.ToUpper();
-            if(status != "INACTIVE")
+            if (status != "INACTIVE")
             {
                 return null;
             }
 
             var user = await _db.ApplicationUsers.FirstOrDefaultAsync(x => x.Id == request.ID);
-            if(user == null)
+            if (user == null)
             {
                 return null;
             }
             else
             {
-                if(user.TrangThai.ToUpper() == "ACTIVE")
+                if (user.TrangThai.ToUpper() == "ACTIVE")
                 {
                     user.TrangThai = status;
                     _db.ApplicationUsers.Update(user);
@@ -93,7 +93,7 @@ namespace DATSANBONG.Repository
         // ADMIN LOCK USER (IDENTITY)
         public async Task<APIResponse> LockUnlockUserAsync(string userId)
         {
-            
+
             var user = await _userManager.FindByIdAsync(userId);
 
             if (user == null)
@@ -128,6 +128,7 @@ namespace DATSANBONG.Repository
             return response;
         }
 
+        // CHỦ SÂN CREATE NHAN VIÊN
         public async Task<APIResponse> AddEmployee(EmlpyeeDTO request)
         {
             if (request == null)
@@ -143,7 +144,7 @@ namespace DATSANBONG.Repository
                 string.IsNullOrWhiteSpace(request.Password) ||
                 string.IsNullOrWhiteSpace(request.Email) ||
                 string.IsNullOrWhiteSpace(request.TenVaiTro) ||
-                string.IsNullOrWhiteSpace(request.HoTen)||           
+                string.IsNullOrWhiteSpace(request.HoTen) ||
                 request.MaSanBong == null)
             {
                 response.IsSuccess = false;
@@ -169,7 +170,7 @@ namespace DATSANBONG.Repository
                     response.IsSuccess = false;
                     response.Status = HttpStatusCode.Unauthorized;
                     response.ErrorMessages = new List<string> { "Không thể lấy thông tin tài khoản hiện tại. Vui lòng đăng nhập lại." };
-                    return response;                 
+                    return response;
                 }
 
                 var employee1 = new ApplicationUser
@@ -222,7 +223,7 @@ namespace DATSANBONG.Repository
                 response.IsSuccess = true;
                 response.Status = HttpStatusCode.OK;
                 response.Result = "Please confirm your email with the code that you received!";
-                return response;             
+                return response;
             }
             catch (Exception ex)
             {
@@ -230,9 +231,148 @@ namespace DATSANBONG.Repository
                 response.IsSuccess = false;
                 response.Status = HttpStatusCode.InternalServerError;
                 response.ErrorMessages = new List<string> { ex.Message };
-                return response;               
+                return response;
             }
         }
 
+        // CHỦ SÂN REMOVE NHÂN VIÊN
+        public async Task<APIResponse> DeleteEmployee(string EmployeeId)
+        {
+            if (string.IsNullOrWhiteSpace(EmployeeId))
+            {
+                response.IsSuccess = false;
+                response.Status = HttpStatusCode.BadRequest;
+                response.ErrorMessages = new List<string> { "Invalid User Information" };
+                return response;
+            }
+            var transaction = await _db.Database.BeginTransactionAsync();
+            try
+            {
+                // Xóa nhân viên ở bảng applicationUser
+                var user = await _userManager.FindByIdAsync(EmployeeId);
+                if (user == null)
+                {
+                    response.IsSuccess = false;
+                    response.Status = HttpStatusCode.NotFound;
+                    response.ErrorMessages = new List<string> { "User is not found!" };
+                    return response;
+                }
+                // Xóa role của nhân viên trong bảng AspNetRole
+                var role = await _userManager.GetRolesAsync(user);
+                if (role.Any())
+                {
+                    var roleRemoveResult = await _userManager.RemoveFromRolesAsync(user, role);
+                    if (!roleRemoveResult.Succeeded)
+                    {
+                        response.IsSuccess = false;
+                        response.Status = HttpStatusCode.BadRequest;
+                        response.ErrorMessages = new List<string>() { "Employee roles can't be deleted." };
+                        return response;
+                    }
+                }
+
+                // Xóa nhân viên trong bảng NhanVien
+                var employee = await _db.NhanViens.FindAsync(EmployeeId);
+                if (employee == null)
+                {
+                    response.IsSuccess = false;
+                    response.Status = HttpStatusCode.BadRequest;
+                    response.ErrorMessages = new List<string>() { "Employee can't be deleted." };
+                    return response;
+                }
+
+                _db.NhanViens.Remove(employee);
+                await _db.SaveChangesAsync();
+                var deleteResult = await _userManager.DeleteAsync(user);
+                if (!deleteResult.Succeeded)
+                {
+                    response.IsSuccess = false;
+                    response.Status = HttpStatusCode.BadRequest;
+                    response.ErrorMessages = new List<string>()
+            {
+                "Employee can't be deleted."
+            };
+                    return response;
+                }
+                await transaction.CommitAsync();
+                response.IsSuccess = true;
+                response.Status = HttpStatusCode.OK;
+                response.Result = "Delete Employee Successfull";
+                return response;
+
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                response.IsSuccess = false;
+                response.Status = HttpStatusCode.InternalServerError;
+                response.ErrorMessages = new List<string> { "Error: " + ex.Message };
+                return response;
+            }
+        }
+
+        // LẤY RA TẤT CẢ NHÂN VIÊN
+        public async Task<APIResponse> GetAllEmployees()
+        {
+            var response = new APIResponse();
+            try
+            {
+                var employees = await (from nv in _db.NhanViens
+                                       join user in _db.Users on nv.MaNhanVien equals user.Id
+                                       select new EmlpyeeDTO
+                                       {
+                                           Username = user.UserName,
+                                           HoTen = user.HoTen,
+                                           Email = user.Email,
+                                           GioiTinh = user.GioiTinh,
+                                           SoDienThoai = user.PhoneNumber,
+                                           MaSanBong = nv.MaSanBong
+                                       }).ToListAsync();
+
+                response.IsSuccess = true;
+                response.Status = HttpStatusCode.OK;
+                response.Result = employees;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Status = HttpStatusCode.InternalServerError;
+                response.ErrorMessages = new List<string> { ex.Message };
+                return response;
+            }
+        }
+
+        public async Task<APIResponse> GetEmployee(string id)
+        {
+            var employee = await (from nv in _db.NhanViens
+                                  join user in _db.Users on nv.MaNhanVien equals user.Id
+                                  where user.Id == id
+                                  select new EmlpyeeDTO
+                                  {
+                                      Username = user.UserName,
+                                      HoTen = user.HoTen,
+                                      Email = user.Email,
+
+                                      GioiTinh = user.GioiTinh,
+                                      SoDienThoai = user.PhoneNumber,
+                                      MaSanBong = nv.MaSanBong
+                                  }).FirstOrDefaultAsync();
+
+            if (employee == null)
+            {
+                response.IsSuccess = false;
+                response.Status = HttpStatusCode.NotFound;
+                response.ErrorMessages = new List<string> { "Không tìm thấy nhân viên." };
+                return response;
+            }
+
+
+            response.IsSuccess = true;
+            response.Status = HttpStatusCode.OK;
+            response.Result = employee;
+            return response;
+
+        }
     }
 }
