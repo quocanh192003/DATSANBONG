@@ -39,7 +39,7 @@ namespace DATSANBONG.Repository
                 return null;
             }
 
-            var user = await _db.ApplicationUsers.FirstOrDefaultAsync(x =>x.Id == id);
+            var user = await _db.ApplicationUsers.FirstOrDefaultAsync(x => x.Id == id);
 
             if (user == null)
             {
@@ -67,19 +67,19 @@ namespace DATSANBONG.Repository
             }
 
             var status = request.TrangThai.ToUpper();
-            if(status != "INACTIVE")
+            if (status != "INACTIVE")
             {
                 return null;
             }
 
             var user = await _db.ApplicationUsers.FirstOrDefaultAsync(x => x.Id == request.ID);
-            if(user == null)
+            if (user == null)
             {
                 return null;
             }
             else
             {
-                if(user.TrangThai.ToUpper() == "ACTIVE")
+                if (user.TrangThai.ToUpper() == "ACTIVE")
                 {
                     user.TrangThai = status;
                     _db.ApplicationUsers.Update(user);
@@ -93,7 +93,7 @@ namespace DATSANBONG.Repository
         // ADMIN LOCK USER (IDENTITY)
         public async Task<APIResponse> LockUnlockUserAsync(string userId)
         {
-            
+
             var user = await _userManager.FindByIdAsync(userId);
 
             if (user == null)
@@ -144,7 +144,7 @@ namespace DATSANBONG.Repository
                 string.IsNullOrWhiteSpace(request.Password) ||
                 string.IsNullOrWhiteSpace(request.Email) ||
                 string.IsNullOrWhiteSpace(request.TenVaiTro) ||
-                string.IsNullOrWhiteSpace(request.HoTen)||           
+                string.IsNullOrWhiteSpace(request.HoTen) ||
                 request.MaSanBong == null)
             {
                 response.IsSuccess = false;
@@ -170,7 +170,7 @@ namespace DATSANBONG.Repository
                     response.IsSuccess = false;
                     response.Status = HttpStatusCode.Unauthorized;
                     response.ErrorMessages = new List<string> { "Không thể lấy thông tin tài khoản hiện tại. Vui lòng đăng nhập lại." };
-                    return response;                 
+                    return response;
                 }
 
                 var employee1 = new ApplicationUser
@@ -223,7 +223,7 @@ namespace DATSANBONG.Repository
                 response.IsSuccess = true;
                 response.Status = HttpStatusCode.OK;
                 response.Result = "Please confirm your email with the code that you received!";
-                return response;             
+                return response;
             }
             catch (Exception ex)
             {
@@ -231,7 +231,7 @@ namespace DATSANBONG.Repository
                 response.IsSuccess = false;
                 response.Status = HttpStatusCode.InternalServerError;
                 response.ErrorMessages = new List<string> { ex.Message };
-                return response;               
+                return response;
             }
         }
 
@@ -311,5 +311,68 @@ namespace DATSANBONG.Repository
             }
         }
 
+        // LẤY RA TẤT CẢ NHÂN VIÊN
+        public async Task<APIResponse> GetAllEmployees()
+        {
+            var response = new APIResponse();
+            try
+            {
+                var employees = await (from nv in _db.NhanViens
+                                       join user in _db.Users on nv.MaNhanVien equals user.Id
+                                       select new EmlpyeeDTO
+                                       {
+                                           Username = user.UserName,
+                                           HoTen = user.HoTen,
+                                           Email = user.Email,
+                                           GioiTinh = user.GioiTinh,
+                                           SoDienThoai = user.PhoneNumber,
+                                           MaSanBong = nv.MaSanBong
+                                       }).ToListAsync();
+
+                response.IsSuccess = true;
+                response.Status = HttpStatusCode.OK;
+                response.Result = employees;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Status = HttpStatusCode.InternalServerError;
+                response.ErrorMessages = new List<string> { ex.Message };
+                return response;
+            }
+        }
+
+        public async Task<APIResponse> GetEmployee(string id)
+        {
+            var employee = await (from nv in _db.NhanViens
+                                  join user in _db.Users on nv.MaNhanVien equals user.Id
+                                  where user.Id == id
+                                  select new EmlpyeeDTO
+                                  {
+                                      Username = user.UserName,
+                                      HoTen = user.HoTen,
+                                      Email = user.Email,
+
+                                      GioiTinh = user.GioiTinh,
+                                      SoDienThoai = user.PhoneNumber,
+                                      MaSanBong = nv.MaSanBong
+                                  }).FirstOrDefaultAsync();
+
+            if (employee == null)
+            {
+                response.IsSuccess = false;
+                response.Status = HttpStatusCode.NotFound;
+                response.ErrorMessages = new List<string> { "Không tìm thấy nhân viên." };
+                return response;
+            }
+
+
+            response.IsSuccess = true;
+            response.Status = HttpStatusCode.OK;
+            response.Result = employee;
+            return response;
+
+        }
     }
 }
