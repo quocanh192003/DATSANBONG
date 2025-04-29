@@ -9,5 +9,6 @@ namespace DATSANBONG.Repository.IRepository
         Task<ApplicationUser> LockUser (ConfirmUserDTO request);
         Task<APIResponse> LockUnlockUserAsync(string userId);
         Task<APIResponse> AddEmployee(EmlpyeeDTO request);
+        Task<APIResponse> DeleteEmployee(string id);
     }
 }
