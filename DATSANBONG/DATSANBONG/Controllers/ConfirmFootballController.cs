@@ -26,7 +26,7 @@ namespace DATSANBONG.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        //[Authorize(Roles = "admin", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "admin", AuthenticationSchemes = "Bearer")]
         public async Task<ActionResult<APIResponse>> ConfirnFootball(string id, [FromBody] string status)
         {
             try
@@ -70,6 +70,7 @@ namespace DATSANBONG.Controllers
         [HttpGet("get_all_football")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [Authorize(Roles = "admin", AuthenticationSchemes = "Bearer")]
         public async Task<ActionResult<APIResponse>> GetAllFootball()
         {
             try

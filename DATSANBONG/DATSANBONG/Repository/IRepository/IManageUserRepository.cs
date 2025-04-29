@@ -5,7 +5,9 @@ namespace DATSANBONG.Repository.IRepository
 {
     public interface IManageUserRepository
     {
-        Task<ApplicationUser> ConfirmUser  (ConfirmUserDTO request);
-        Task<ApplicationUser> LockUser (ConfirmUserDTO requesr);
+        Task<ApplicationUser> ConfirmUser  (string id, string status);
+        Task<ApplicationUser> LockUser (ConfirmUserDTO request);
+        Task<APIResponse> LockUnlockUserAsync(string userId);
+        Task<APIResponse> AddEmployee(EmlpyeeDTO request);
     }
 }

@@ -38,6 +38,9 @@ builder.Services.AddScoped<IManageUserRepository, ManageUserRepository>();
 builder.Services.AddScoped<IRepository<ApplicationUser>, Repository<ApplicationUser>>();
 builder.Services.AddScoped<IConfirmFootballRepository, ConfirmFootballRepository>();
 
+builder.Services.AddHttpContextAccessor();
+
+
 var key = builder.Configuration.GetValue<string>("ApiSetting:Secret");
 builder.Services.AddAuthentication(x =>
 {
