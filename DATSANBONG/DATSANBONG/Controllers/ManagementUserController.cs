@@ -30,7 +30,7 @@ namespace DATSANBONG.Controllers
             _userManager = userManager;
         }
         // ADMIN CONFIRM USER
-        [HttpPut("confirm_user/{id}")]
+        [HttpPut("confirm-user/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Authorize(Roles = "admin", AuthenticationSchemes = "Bearer")]
@@ -52,7 +52,7 @@ namespace DATSANBONG.Controllers
         }
 
         // ADMIN LOCK USER
-        [HttpPut("lock_user")]
+        [HttpPut("lock-user")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Authorize(Roles = "admin", AuthenticationSchemes = "Bearer")]
@@ -197,7 +197,7 @@ namespace DATSANBONG.Controllers
 
 
         // CHỦ SÂN TẠO TÀI KHOẢN NHÂN VIÊN
-        [HttpPost("create_employee")]
+        [HttpPost("create-employee")]
         [Authorize(Roles = "Chủ Sân", AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> AddEmployee(EmlpyeeDTO request)
         {
@@ -207,7 +207,7 @@ namespace DATSANBONG.Controllers
         }
 
         // CHỦ SÂN XÓA TÀI KHOẢN NHÂN VIÊN
-        [HttpDelete("remove_employee/{id}")]
+        [HttpDelete("remove-employee/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -219,7 +219,7 @@ namespace DATSANBONG.Controllers
         }
 
         // LẤY RA TẤT CẢ NHÂN VIÊN
-        [HttpGet("employee_get")]
+        [HttpGet("employee-get")]
         [Authorize(Roles = "Chủ Sân", AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> GetAllEmployees()
         {
@@ -228,12 +228,21 @@ namespace DATSANBONG.Controllers
         }
 
         // LẤY RA TẤT CẢ NHÂN VIÊN
-        [HttpGet("employee_get/{id}")]
-        //[Authorize(Roles = "Chủ Sân", AuthenticationSchemes = "Bearer")]
+        [HttpGet("employee-get/{id}")]
+        [Authorize(Roles = "Chủ Sân", AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> GetEmployees(string id)
         {
             var response = await _manageRepo.GetEmployee(id);
             return StatusCode((int)response.Status, response);
+        }
+
+        // CẬP NHẬT THÔNG TIN CÁ NHÂN
+        [HttpPut("update-profile")]
+        [Authorize]
+        public async Task<IActionResult> UpdateInfo([FromBody] UpdateInfoDTO request)
+        {
+            var response = await _manageRepo.UpdateInfo(request);
+            return StatusCode((int)response.Status,response);
         }
     }
 

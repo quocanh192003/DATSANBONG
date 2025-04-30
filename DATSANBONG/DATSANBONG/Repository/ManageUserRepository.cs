@@ -343,6 +343,7 @@ namespace DATSANBONG.Repository
             }
         }
 
+        // LẤY NHÂN VIÊN THEO ID
         public async Task<APIResponse> GetEmployee(string id)
         {
             var employee = await (from nv in _db.NhanViens
@@ -373,6 +374,56 @@ namespace DATSANBONG.Repository
             response.Result = employee;
             return response;
 
+        }
+
+        // UPDATE PROFILE
+        public async Task<APIResponse> UpdateInfo(UpdateInfoDTO request)
+        {
+            try
+            {
+                var userCurrent = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext?.User);
+                if(userCurrent == null)
+                {
+                    response.IsSuccess = false;
+                    response.Status = HttpStatusCode.Unauthorized;
+                    response.ErrorMessages = new List<string>() { "Người dùng chưa đăng nhập hoặc phiên đăng nhập đã hết hạn." };
+                    return response;
+                }
+
+                // Cập nhật từng trường nếu có dữ liệu
+                if (!string.IsNullOrWhiteSpace(request.HoTen))
+                    userCurrent.HoTen = request.HoTen;
+
+                if (request.NgaySinh.HasValue)
+                    userCurrent.NgaySinh = request.NgaySinh.Value;
+
+                if (!string.IsNullOrWhiteSpace(request.GioiTinh))
+                    userCurrent.GioiTinh = request.GioiTinh;
+
+                if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
+                    userCurrent.PhoneNumber = request.PhoneNumber;
+
+                var result = await _userManager.UpdateAsync(userCurrent);
+                if (!result.Succeeded)
+                {
+                    response.IsSuccess = false;
+                    response.Status = HttpStatusCode.BadRequest;
+                    response.ErrorMessages = result.Errors.Select(e => e.Description).ToList();
+                    return response;
+                }
+
+                response.IsSuccess = true;
+                response.Status = HttpStatusCode.OK;
+                response.Result = userCurrent;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.Status = HttpStatusCode.InternalServerError;
+                response.ErrorMessages = new List<string> { ex.Message };
+                return response;
+            }
         }
     }
 }

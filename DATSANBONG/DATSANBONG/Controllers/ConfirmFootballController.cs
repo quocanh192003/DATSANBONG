@@ -22,7 +22,7 @@ namespace DATSANBONG.Controllers
         }
 
         //ADMIN CONFIRM FOOTBALL
-        [HttpPut("confirm_football/{id}")]
+        [HttpPut("confirm-football/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -67,7 +67,7 @@ namespace DATSANBONG.Controllers
         }
 
 
-        [HttpGet("get_all_football")]
+        [HttpGet("get-all-football")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Authorize(Roles = "admin", AuthenticationSchemes = "Bearer")]
