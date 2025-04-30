@@ -42,5 +42,8 @@ namespace DATSANBONG.Models
         // Navigation
         public ICollection<NhanVien> DanhSachNhanVien { get; set; }
 
+        public ICollection<ChiTietSanBong> DanhSachChiTietSan { get; set; }
+
+
     }
 }
