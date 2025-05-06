@@ -117,14 +117,14 @@ namespace DATSANBONG.Repository
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    //if (!_roleManager.RoleExistsAsync("admin").GetAwaiter().GetResult())
-                    //{
-                    //    await _roleManager.CreateAsync(new IdentityRole("admin"));
-                    //    await _roleManager.CreateAsync(new IdentityRole("Chủ Sân"));
-                    //    await _roleManager.CreateAsync(new IdentityRole("Khách Hàng"));
-                    //    await _roleManager.CreateAsync(new IdentityRole("Nhân Viên"));
+                    if (!_roleManager.RoleExistsAsync("ADMIN").GetAwaiter().GetResult())
+                    {
+                        await _roleManager.CreateAsync(new IdentityRole("ADMIN"));
+                        await _roleManager.CreateAsync(new IdentityRole("CHỦ SÂN"));
+                        await _roleManager.CreateAsync(new IdentityRole("KHÁCH HÀNG"));
+                        await _roleManager.CreateAsync(new IdentityRole("NHÂN VIÊN"));
 
-                    //}
+                    }
                     var roleName = model.TenVaiTro.Trim();
                     var addRoleResult = await _userManager.AddToRoleAsync(user, roleName);
                     if (!addRoleResult.Succeeded)

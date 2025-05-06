@@ -7,11 +7,14 @@ namespace DATSANBONG
 {
     public class MappingConfig : Profile
     {
-        public MappingConfig() 
+        public MappingConfig()
         {
             CreateMap<ApplicationUser, NguoiDungDTO>().ReverseMap();
             CreateMap<ApplicationUser, ApplicationUserDTO>().ReverseMap();
             CreateMap<SanBong, SanBongDTO>().ReverseMap();
+            CreateMap<CreateDetailFootballDTO, ChiTietSanBong>().ReverseMap();
+            CreateMap<ChiTietSanBong, ResponseDetailFootballDTO>().ReverseMap();
+            
         }
     }
 }
