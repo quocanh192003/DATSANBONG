@@ -8,10 +8,11 @@ namespace DATSANBONG.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options) { }
-        public DbSet<ApplicationUser> ApplicationUsers { get; set; }   
+        public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<SanBong> SanBongs { get; set; }
         public DbSet<NhanVien> NhanViens { get; set; }
         public DbSet<ChiTietSanBong> chiTietSanBongs { get; set; }
+        public DbSet<LichSan> LichSans { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,6 +27,18 @@ namespace DATSANBONG.Data
                 .HasOne(ct => ct.SanBong)
                 .WithMany(sb => sb.DanhSachChiTietSan)
                 .HasForeignKey(ct => ct.MaSanBong);
+
+            modelBuilder.Entity<LichSan>()
+                .HasOne(ls => ls.ChiTietSanBong)
+                .WithMany()
+                .HasForeignKey(ls => new { ls.MaSanBong, ls.MaSanCon })
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<LichSan>()
+                .HasOne(ls => ls.SanBong)
+                .WithMany()
+                .HasForeignKey(ls => ls.MaSanBong)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

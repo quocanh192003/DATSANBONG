@@ -178,7 +178,7 @@ namespace DATSANBONG.Repository
                 }
 
                 var sancon = _mapper.Map<ChiTietSanBong>(request);
-                sancon.TrangThaiSan = "ACTIVE";
+                sancon.TrangThaiSan = "AVAILABLE";
                 await _db.chiTietSanBongs.AddAsync(sancon);
                 await _db.SaveChangesAsync();
                 var sanconDTO = _mapper.Map<ResponseDetailFootballDTO>(sancon);
