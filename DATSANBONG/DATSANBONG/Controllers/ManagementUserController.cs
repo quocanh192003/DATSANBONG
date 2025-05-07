@@ -33,7 +33,7 @@ namespace DATSANBONG.Controllers
         [HttpPut("confirm-user/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [Authorize(Roles = "admin", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "ADMIN", AuthenticationSchemes = "Bearer")]
         public async Task<ActionResult<APIResponse>> ConfirmUser(string id, string status)
         {
             var user = await _manageRepo.ConfirmUser(id, status);
@@ -55,7 +55,7 @@ namespace DATSANBONG.Controllers
         [HttpPut("lock-user")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [Authorize(Roles = "admin", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "ADMIN", AuthenticationSchemes = "Bearer")]
         public async Task<ActionResult<APIResponse>> LockUser([FromBody] ConfirmUserDTO request)
         {
             var user = await _manageRepo.LockUser(request);
@@ -79,7 +79,7 @@ namespace DATSANBONG.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Authorize(Roles = "admin", AuthenticationSchemes ="Bearer")]
+        [Authorize(Roles = "ADMIN", AuthenticationSchemes ="Bearer")]
         public async Task<ActionResult<APIResponse>> GetUser(string username)
         {
             try
@@ -116,7 +116,7 @@ namespace DATSANBONG.Controllers
         [HttpGet("all")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [Authorize(Roles = "admin", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "ADMIN", AuthenticationSchemes = "Bearer")]
         public async Task<ActionResult<APIResponse>> GetAllUser()
         {
             var users = await _repo.GetAllAsync();
@@ -147,7 +147,7 @@ namespace DATSANBONG.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Authorize(Roles = "admin", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "ADMIN", AuthenticationSchemes = "Bearer")]
         public async Task<ActionResult<APIResponse>> DeleteUser(string id)
         {
             try
@@ -187,7 +187,7 @@ namespace DATSANBONG.Controllers
 
         // ADMIN LOCK USER (IDENTITY)
         [HttpPost("lock-unlock/{userId}")]
-        [Authorize(Roles = "admin", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "ADMIN", AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> LockUnlockUser(string userId)
         {
             var response = await _manageRepo.LockUnlockUserAsync(userId);
@@ -198,7 +198,7 @@ namespace DATSANBONG.Controllers
 
         // CHỦ SÂN TẠO TÀI KHOẢN NHÂN VIÊN
         [HttpPost("create-employee")]
-        [Authorize(Roles = "Chủ Sân", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "CHỦ SÂN", AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> AddEmployee(EmlpyeeDTO request)
         {
             var response = await _manageRepo.AddEmployee(request);
@@ -211,7 +211,7 @@ namespace DATSANBONG.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Authorize(Roles = "Chủ Sân", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "CHỦ SÂN", AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> DeleteEmployee(string id)
         {
             var response = await _manageRepo.DeleteEmployee(id);
@@ -220,7 +220,7 @@ namespace DATSANBONG.Controllers
 
         // LẤY RA TẤT CẢ NHÂN VIÊN
         [HttpGet("employee-get")]
-        [Authorize(Roles = "Chủ Sân", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "CHỦ SÂN", AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> GetAllEmployees()
         {
             var response = await _manageRepo.GetAllEmployees();
@@ -229,7 +229,7 @@ namespace DATSANBONG.Controllers
 
         // LẤY RA TẤT CẢ NHÂN VIÊN
         [HttpGet("employee-get/{id}")]
-        [Authorize(Roles = "Chủ Sân", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "CHỦ SÂN", AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> GetEmployees(string id)
         {
             var response = await _manageRepo.GetEmployee(id);
@@ -238,7 +238,7 @@ namespace DATSANBONG.Controllers
 
         // CẬP NHẬT THÔNG TIN CÁ NHÂN
         [HttpPut("update-profile")]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> UpdateInfo([FromBody] UpdateInfoDTO request)
         {
             var response = await _manageRepo.UpdateInfo(request);

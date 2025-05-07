@@ -4,6 +4,7 @@ using DATSANBONG.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DATSANBONG.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250430140309_addTableChitietsanbong")]
+    partial class addTableChitietsanbong
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -133,43 +136,6 @@ namespace DATSANBONG.Migrations
                     b.HasKey("MaSanBong", "MaSanCon");
 
                     b.ToTable("chiTietSanBongs");
-                });
-
-            modelBuilder.Entity("DATSANBONG.Models.LichSan", b =>
-                {
-                    b.Property<string>("MaLichSan")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<decimal>("GiaThue")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<TimeSpan>("GioBatDau")
-                        .HasColumnType("time");
-
-                    b.Property<TimeSpan>("GioKetThuc")
-                        .HasColumnType("time");
-
-                    b.Property<string>("MaSanBong")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("MaSanCon")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<string>("TrangThai")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("thu")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("MaLichSan");
-
-                    b.HasIndex("MaSanBong", "MaSanCon");
-
-                    b.ToTable("LichSans");
                 });
 
             modelBuilder.Entity("DATSANBONG.Models.NhanVien", b =>
@@ -389,25 +355,6 @@ namespace DATSANBONG.Migrations
                         .HasForeignKey("MaSanBong")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("SanBong");
-                });
-
-            modelBuilder.Entity("DATSANBONG.Models.LichSan", b =>
-                {
-                    b.HasOne("DATSANBONG.Models.SanBong", "SanBong")
-                        .WithMany()
-                        .HasForeignKey("MaSanBong")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("DATSANBONG.Models.ChiTietSanBong", "ChiTietSanBong")
-                        .WithMany()
-                        .HasForeignKey("MaSanBong", "MaSanCon")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("ChiTietSanBong");
 
                     b.Navigation("SanBong");
                 });

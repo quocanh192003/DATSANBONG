@@ -7,7 +7,7 @@ using System.Net;
 
 namespace DATSANBONG.Controllers
 {
-    [Route("api/admin")]
+    [Route("api")]
     [ApiController]
     public class ConfirmFootballController : Controller
     {
@@ -26,7 +26,7 @@ namespace DATSANBONG.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Authorize(Roles = "admin", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "ADMIN", AuthenticationSchemes = "Bearer")]
         public async Task<ActionResult<APIResponse>> ConfirnFootball(string id, [FromBody] string status)
         {
             try
@@ -67,28 +67,28 @@ namespace DATSANBONG.Controllers
         }
 
 
-        [HttpGet("get-all-football")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [Authorize(Roles = "admin", AuthenticationSchemes = "Bearer")]
-        public async Task<ActionResult<APIResponse>> GetAllFootball()
-        {
-            try
-            {
-                var result = await _RepoFootball.GetAllFootball();
-                _apiResponse.IsSuccess = true;
-                _apiResponse.Status = HttpStatusCode.OK;
-                _apiResponse.Result = result;
-                return Ok(_apiResponse);
-            }
-            catch (Exception ex)
-            {
-                _apiResponse.IsSuccess = false;
-                _apiResponse.Status = HttpStatusCode.BadRequest;
-                _apiResponse.ErrorMessages = new List<string>() { ex.Message };
-                return BadRequest(_apiResponse);
-            }
-        }
+        //[HttpGet("get-all-football")]
+        //[ProducesResponseType(StatusCodes.Status200OK)]
+        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+        //[Authorize(Roles = "ADMIN", AuthenticationSchemes = "Bearer")]
+        //public async Task<ActionResult<APIResponse>> GetAllFootball()
+        //{
+        //    try
+        //    {
+        //        var result = await _RepoFootball.GetAllFootball();
+        //        _apiResponse.IsSuccess = true;
+        //        _apiResponse.Status = HttpStatusCode.OK;
+        //        _apiResponse.Result = result;
+        //        return Ok(_apiResponse);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _apiResponse.IsSuccess = false;
+        //        _apiResponse.Status = HttpStatusCode.BadRequest;
+        //        _apiResponse.ErrorMessages = new List<string>() { ex.Message };
+        //        return BadRequest(_apiResponse);
+        //    }
+        //}
 
     }
 }
