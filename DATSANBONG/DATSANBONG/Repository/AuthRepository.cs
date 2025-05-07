@@ -132,6 +132,12 @@ namespace DATSANBONG.Repository
                         throw new Exception("Error assigning role: " +
                             string.Join("; ", addRoleResult.Errors.Select(e => e.Description)));
                     }
+                    if(roleName == "ADMIN")
+                    {
+                        user.TrangThai = "ACTIVE";
+                    }
+                    _db.ApplicationUsers.Update(user);
+                    await _db.SaveChangesAsync();
                     // Xác nhận email
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     await _emailService.SendEmail(user.Email, "Email Confirmation", code);

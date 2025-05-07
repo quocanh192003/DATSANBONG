@@ -9,5 +9,9 @@ namespace DATSANBONG.Repository.IRepository
         Task<APIResponse> UpdateFootball(string maSanBong, UpdateFootballDTO request);
         Task<APIResponse> CreateDetailFootball (CreateDetailFootballDTO request);
         Task<APIResponse> UpdateDetailFootball (string masancon, UpdateDetailFootballDTO request);
+        Task<APIResponse> GetAllFootballField();
+        Task<APIResponse> GetFootballFieldById(string maSanBong);
+        Task<APIResponse> GetDetailFootballFieldById(string maSanCon);
+        Task<APIResponse> GetAllDetailFootballField();
     }
 }

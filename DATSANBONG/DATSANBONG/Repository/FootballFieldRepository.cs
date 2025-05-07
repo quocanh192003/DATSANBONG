@@ -30,16 +30,16 @@ namespace DATSANBONG.Repository
             _mapper = mapper;
         }
 
-        
+
 
         // Chủ sân đăng ký thông tin sân bóng
         public async Task<APIResponse> CreateFootBall(CreateFootballDTO request)
         {
-            if(request == null)
+            if (request == null)
             {
                 apiResponse.IsSuccess = false;
                 apiResponse.Status = HttpStatusCode.BadRequest;
-                apiResponse.ErrorMessages = new List<string>() { "Invalid Information!"};
+                apiResponse.ErrorMessages = new List<string>() { "Invalid Information!" };
                 return apiResponse;
             }
 
@@ -149,7 +149,7 @@ namespace DATSANBONG.Repository
         // Chủ sân đăng thông tin chi tiết sân con
         public async Task<APIResponse> CreateDetailFootball(CreateDetailFootballDTO request)
         {
-            if(request == null || string.IsNullOrWhiteSpace(request.MaSanCon) || string.IsNullOrWhiteSpace(request.MaSanBong))
+            if (request == null || string.IsNullOrWhiteSpace(request.MaSanCon) || string.IsNullOrWhiteSpace(request.MaSanBong))
             {
                 apiResponse.IsSuccess = false;
                 apiResponse.Status = HttpStatusCode.BadRequest;
@@ -200,7 +200,7 @@ namespace DATSANBONG.Repository
         // Nhân viên update thông tin sân con (loại sân, trạng thái sân)
         public async Task<APIResponse> UpdateDetailFootball(string masancon, UpdateDetailFootballDTO request)
         {
-            if(request == null || string.IsNullOrWhiteSpace(masancon))
+            if (request == null || string.IsNullOrWhiteSpace(masancon))
             {
                 apiResponse.IsSuccess = false;
                 apiResponse.Status = HttpStatusCode.BadRequest;
@@ -261,6 +261,112 @@ namespace DATSANBONG.Repository
                 apiResponse.IsSuccess = true;
                 apiResponse.Status = HttpStatusCode.OK;
                 apiResponse.Result = result;
+                return apiResponse;
+            }
+            catch (Exception ex)
+            {
+                apiResponse.IsSuccess = false;
+                apiResponse.Status = HttpStatusCode.BadRequest;
+                apiResponse.ErrorMessages = new List<string>() { ex.Message };
+                return apiResponse;
+            }
+        }
+
+        // Lấy ra tất cả sân bóng 
+        public async Task<APIResponse> GetAllFootballField()
+        {
+            try
+            {
+                var footballFields = await _db.SanBongs.ToListAsync();
+                if (footballFields == null || !footballFields.Any())
+                {
+                    apiResponse.IsSuccess = false;
+                    apiResponse.Status = HttpStatusCode.NotFound;
+                    apiResponse.ErrorMessages = new List<string>() { "No football fields found!" };
+                    return apiResponse;
+                }
+                var footballFieldsDTO = _mapper.Map<List<SanBongDTO>>(footballFields);
+                apiResponse.IsSuccess = true;
+                apiResponse.Status = HttpStatusCode.OK;
+                apiResponse.Result = footballFieldsDTO;
+                return apiResponse;
+            }
+            catch (Exception ex)
+            {
+                apiResponse.IsSuccess = false;
+                apiResponse.Status = HttpStatusCode.BadRequest;
+                apiResponse.ErrorMessages = new List<string>() { ex.Message };
+                return apiResponse;
+            }
+        }
+
+        // Lay ra thông tin sân bóng theo mã sân bóng
+        public async Task<APIResponse> GetFootballFieldById(string maSanBong)
+        {
+            if (string.IsNullOrWhiteSpace(maSanBong))
+            {
+                apiResponse.IsSuccess = false;
+                apiResponse.Status = HttpStatusCode.BadRequest;
+                apiResponse.ErrorMessages = new List<string>() { "Invalid Information!" };
+                return apiResponse;
+            }
+            var footballField = await _db.SanBongs.FirstOrDefaultAsync(x => x.MaSanBong == maSanBong);
+            if (footballField == null)
+            {
+                apiResponse.IsSuccess = false;
+                apiResponse.Status = HttpStatusCode.NotFound;
+                apiResponse.ErrorMessages = new List<string>() { "Football field not found!" };
+                return apiResponse;
+            }
+            var footballFieldDTO = _mapper.Map<SanBongDTO>(footballField);
+            apiResponse.IsSuccess = true;
+            apiResponse.Status = HttpStatusCode.OK;
+            apiResponse.Result = footballFieldDTO;
+            return apiResponse;
+        }
+
+        // Lấy ra thông tin chi tiết sân bóng theo mã sân con   
+        public async Task<APIResponse> GetDetailFootballFieldById(string maSanCon)
+        {
+            if (string.IsNullOrWhiteSpace(maSanCon))
+            {
+                apiResponse.IsSuccess = false;
+                apiResponse.Status = HttpStatusCode.BadRequest;
+                apiResponse.ErrorMessages = new List<string>() { "Invalid Information!" };
+                return apiResponse;
+            }
+            var detailFootballField = await _db.chiTietSanBongs.FirstOrDefaultAsync(x => x.MaSanCon == maSanCon);
+            if (detailFootballField == null)
+            {
+                apiResponse.IsSuccess = false;
+                apiResponse.Status = HttpStatusCode.NotFound;
+                apiResponse.ErrorMessages = new List<string>() { "Detail football field not found!" };
+                return apiResponse;
+            }
+            var detailFootballFieldDTO = _mapper.Map<ResponseDetailFootballDTO>(detailFootballField);
+            apiResponse.IsSuccess = true;
+            apiResponse.Status = HttpStatusCode.OK;
+            apiResponse.Result = detailFootballFieldDTO;
+            return apiResponse;
+        }
+
+        // Lấy ra tất cả chi tiết sân bóng
+        public async Task<APIResponse> GetAllDetailFootballField()
+        {
+            try
+            {
+                var detailFootballFields = await _db.chiTietSanBongs.ToListAsync();
+                if (detailFootballFields == null || !detailFootballFields.Any())
+                {
+                    apiResponse.IsSuccess = false;
+                    apiResponse.Status = HttpStatusCode.NotFound;
+                    apiResponse.ErrorMessages = new List<string>() { "No detail football fields found!" };
+                    return apiResponse;
+                }
+                var detailFootballFieldsDTO = _mapper.Map<List<ResponseDetailFootballDTO>>(detailFootballFields);
+                apiResponse.IsSuccess = true;
+                apiResponse.Status = HttpStatusCode.OK;
+                apiResponse.Result = detailFootballFieldsDTO;
                 return apiResponse;
             }
             catch (Exception ex)

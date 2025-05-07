@@ -24,7 +24,7 @@ namespace DATSANBONG.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Authorize(Roles = "Chủ Sân", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "CHỦ SÂN", AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> CreateFootBall([FromBody] CreateFootballDTO request)
         {
             
@@ -37,7 +37,7 @@ namespace DATSANBONG.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Authorize(Roles = "Chủ Sân", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "CHỦ SÂN", AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> UpdateFootball(string id, [FromBody] UpdateFootballDTO request)
         {
 
@@ -51,7 +51,7 @@ namespace DATSANBONG.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Authorize(Roles = "Chủ Sân", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "CHỦ SÂN", AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> CreateDetailFootball([FromBody] CreateDetailFootballDTO request)
         {
 
@@ -64,11 +64,59 @@ namespace DATSANBONG.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Authorize(Roles = "Nhân Viên", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "NHÂN VIÊN", AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> UpdateDetailFootball(string id, [FromBody] UpdateDetailFootballDTO request)
         {
 
             var response = await _football.UpdateDetailFootball(id, request);
+            return StatusCode((int)response.Status, response);
+        }
+
+        //Lấy danh sách sân bóng
+        [HttpGet("get-all-football")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> GetAllFootballField()
+        {
+            var response = await _football.GetAllFootballField();
+            return StatusCode((int)response.Status, response);
+        }
+
+        //Lấy thông tin sân bóng theo id
+        [HttpGet("get-football/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> GetFootballFieldById(string id)
+        {
+            var response = await _football.GetFootballFieldById(id);
+            return StatusCode((int)response.Status, response);
+        }
+
+        //Lấy thông tin chi tiết sân bóng con theo id
+        [HttpGet("get-detailfootball/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> GetDetailFootballFieldById(string id)
+        {
+            var response = await _football.GetDetailFootballFieldById(id);
+            return StatusCode((int)response.Status, response);
+        }
+
+        //Lấy danh sách sân bóng con
+        [HttpGet("get-all-detailfootball")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> GetAllDetailFootballField()
+        {
+            var response = await _football.GetAllDetailFootballField();
             return StatusCode((int)response.Status, response);
         }
 
