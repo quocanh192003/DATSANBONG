@@ -259,5 +259,59 @@ namespace DATSANBONG.Controllers
                 return BadRequest(_apiResponse);
             }
         }
+
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword(RequestForgotPasswordDTO request)
+        {
+            if (ModelState.IsValid)
+            {
+                var tokenResponse = await _authRepo.ForgotPassword(request);
+                if (tokenResponse == null || string.IsNullOrEmpty(tokenResponse.Token))
+                {
+                    _apiResponse.IsSuccess = false;
+                    _apiResponse.Status = HttpStatusCode.BadRequest;
+                    _apiResponse.Result = "Invalid Input";
+                    return BadRequest(_apiResponse);
+                }
+                _apiResponse.IsSuccess = true;
+                _apiResponse.Status = HttpStatusCode.OK;
+                _apiResponse.Result = "Please reset password with the code that you received";
+                return Ok(_apiResponse);
+            }
+            _apiResponse.IsSuccess = false;
+            _apiResponse.Status = HttpStatusCode.BadRequest;
+            _apiResponse.ErrorMessages.Add("Something went wrong!");
+            return BadRequest(_apiResponse);
+        }
+
+        [HttpPost("reset-password-user")]
+        public async Task<IActionResult> ResetPasswordUser(RequestResetPasswordUserDTO request)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByEmailAsync(request.Email);
+                if (user == null)
+                {
+                    _apiResponse.IsSuccess = false;
+                    _apiResponse.Status = HttpStatusCode.BadRequest;
+                    _apiResponse.Result = "Invalid Input";
+                    return BadRequest(_apiResponse);
+                }
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var result = await _userManager.ResetPasswordAsync(user, token, request.Password);
+                if (result.Succeeded)
+                {
+                    _apiResponse.IsSuccess = true;
+                    _apiResponse.Status = HttpStatusCode.OK;
+                    _apiResponse.Result = "Password reset is successfully";
+                    return Ok(_apiResponse);
+                }
+            }
+            _apiResponse.IsSuccess = false;
+            _apiResponse.Status = HttpStatusCode.BadRequest;
+            _apiResponse.ErrorMessages.Add("Something went wrong!");
+            return BadRequest(_apiResponse);
+        }
     }
 }

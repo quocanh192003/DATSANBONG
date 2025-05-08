@@ -165,6 +165,24 @@ namespace DATSANBONG.Repository
             }
         }
 
+        public async Task<ResponseTokenPasswordDTO> ForgotPassword(RequestForgotPasswordDTO request)
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user == null)
+                return new ResponseTokenPasswordDTO();
+            var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+            if (string.IsNullOrEmpty(token))
+                return new ResponseTokenPasswordDTO();
+            //send email
+            await _emailService.SendEmail(user.Email, "Code to reset your password", token);
+
+            return new ResponseTokenPasswordDTO()
+            {
+                Email = user.Email,
+                Token = token
+            };
+        }
+
 
     }
 }
