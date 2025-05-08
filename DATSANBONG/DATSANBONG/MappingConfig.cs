@@ -14,7 +14,10 @@ namespace DATSANBONG
             CreateMap<SanBong, SanBongDTO>().ReverseMap();
             CreateMap<CreateDetailFootballDTO, ChiTietSanBong>().ReverseMap();
             CreateMap<ChiTietSanBong, ResponseDetailFootballDTO>().ReverseMap();
-            
+            CreateMap<LichSan, LichSanDTO>().ReverseMap();
+            CreateMap<LichSan, ResponseScheduleDTO>().ReverseMap();
+            CreateMap<LichSan, UpdateScheduleDTO>().ReverseMap();
+
         }
     }
 }

@@ -38,6 +38,7 @@ builder.Services.AddScoped<IManageUserRepository, ManageUserRepository>();
 builder.Services.AddScoped<IRepository<ApplicationUser>, Repository<ApplicationUser>>();
 builder.Services.AddScoped<IConfirmFootballRepository, ConfirmFootballRepository>();
 builder.Services.AddScoped<IFootballFieldRepository, FootballFieldRepository>();
+builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
 
 builder.Services.AddHttpContextAccessor();
 
