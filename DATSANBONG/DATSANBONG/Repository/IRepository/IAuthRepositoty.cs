@@ -8,5 +8,6 @@ namespace DATSANBONG.Repository.IRepository
         bool IsUniqueUser(string TaiKhoan);
         Task<LoginResponseDTO> Login (LoginRequestDTO model);
         Task<NguoiDungDTO> Register (RegisterRequestDTO model);
+        Task<ResponseTokenPasswordDTO> ForgotPassword(RequestForgotPasswordDTO request);
     }
 }
