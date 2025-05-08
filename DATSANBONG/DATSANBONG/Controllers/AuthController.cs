@@ -298,8 +298,7 @@ namespace DATSANBONG.Controllers
                     _apiResponse.Result = "Invalid Input";
                     return BadRequest(_apiResponse);
                 }
-                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-                var result = await _userManager.ResetPasswordAsync(user, token, request.Password);
+                var result = await _userManager.ResetPasswordAsync(user, request.Token, request.Password);
                 if (result.Succeeded)
                 {
                     _apiResponse.IsSuccess = true;
