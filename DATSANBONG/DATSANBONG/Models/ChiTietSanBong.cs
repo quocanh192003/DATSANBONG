@@ -24,6 +24,9 @@ namespace DATSANBONG.Models
         [Required]
         [StringLength(15)]
         public string TrangThaiSan {  get; set; }
-        
+
+        public virtual ICollection<LichSan> LichSans { get; set; }
+
+        public virtual ICollection<ChiTietDonDatSan> ChiTietDonDatSans { get; set; }
     }
 }

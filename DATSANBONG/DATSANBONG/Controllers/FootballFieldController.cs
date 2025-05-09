@@ -120,5 +120,17 @@ namespace DATSANBONG.Controllers
             return StatusCode((int)response.Status, response);
         }
 
+        //Lấy danh sách sân bóng con theo trạng thái sân trống
+        [HttpGet("{id}/lich-san-trong")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        //[Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> GetDetailFootballbyStatus(string id)
+        {
+            var response = await _football.GetDetailFootballbyStatus(id);
+            return StatusCode((int)response.Status, response);
+        }
+
     }
 }

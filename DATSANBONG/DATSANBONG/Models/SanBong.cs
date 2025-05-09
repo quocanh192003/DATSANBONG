@@ -43,6 +43,7 @@ namespace DATSANBONG.Models
         public ICollection<NhanVien> DanhSachNhanVien { get; set; }
 
         public ICollection<ChiTietSanBong> DanhSachChiTietSan { get; set; }
+        public ICollection<LichSan> DanhSachLichSan{ get; set; }
 
 
     }

@@ -4,6 +4,7 @@ using DATSANBONG.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DATSANBONG.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250508171138_addtableDONDATSANandCHITIETDONDATSAN")]
+    partial class addtableDONDATSANandCHITIETDONDATSAN
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -130,11 +133,6 @@ namespace DATSANBONG.Migrations
 
                     b.Property<TimeSpan>("GioKetThuc")
                         .HasColumnType("time");
-
-                    b.Property<string>("thu")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
 
                     b.HasKey("MaDatSan", "MaSanCon", "MaSanBong", "GioBatDau");
 

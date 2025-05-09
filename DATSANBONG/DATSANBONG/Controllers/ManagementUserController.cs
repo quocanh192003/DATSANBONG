@@ -11,7 +11,7 @@ using System.Net;
 
 namespace DATSANBONG.Controllers
 {
-    [Route("api/admin")]
+    [Route("api")]
     [ApiController]
     public class ManagementUserController : Controller
     {
@@ -30,7 +30,7 @@ namespace DATSANBONG.Controllers
             _userManager = userManager;
         }
         // ADMIN CONFIRM USER
-        [HttpPut("confirm-user/{id}")]
+        [HttpPut("admin/confirm-user/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Authorize(Roles = "ADMIN", AuthenticationSchemes = "Bearer")]
@@ -52,7 +52,7 @@ namespace DATSANBONG.Controllers
         }
 
         // ADMIN LOCK USER
-        [HttpPut("lock-user")]
+        [HttpPut("admin/lock-user")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Authorize(Roles = "ADMIN", AuthenticationSchemes = "Bearer")]
@@ -75,7 +75,7 @@ namespace DATSANBONG.Controllers
 
         // ADMIN GET USER BY USERNAME
 
-        [HttpGet("{username}")]
+        [HttpGet("admin/get-by-username/{username}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -113,7 +113,7 @@ namespace DATSANBONG.Controllers
         }
 
         //ADMIN GET ALL USER
-        [HttpGet("all")]
+        [HttpGet("admin/get-all")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [Authorize(Roles = "ADMIN", AuthenticationSchemes = "Bearer")]
@@ -143,7 +143,7 @@ namespace DATSANBONG.Controllers
         }
 
         //ADMIN DELETE USER BY USERNAME
-        [HttpDelete("{id}")]
+        [HttpDelete("admin/delete-by-id/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -186,7 +186,7 @@ namespace DATSANBONG.Controllers
 
 
         // ADMIN LOCK USER (IDENTITY)
-        [HttpPost("lock-unlock/{userId}")]
+        [HttpPost("admin/lock-unlock/{userId}")]
         [Authorize(Roles = "ADMIN", AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> LockUnlockUser(string userId)
         {
@@ -197,7 +197,7 @@ namespace DATSANBONG.Controllers
 
 
         // CHỦ SÂN TẠO TÀI KHOẢN NHÂN VIÊN
-        [HttpPost("create-employee")]
+        [HttpPost("chusan-create-employee")]
         [Authorize(Roles = "CHỦ SÂN", AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> AddEmployee(EmlpyeeDTO request)
         {
