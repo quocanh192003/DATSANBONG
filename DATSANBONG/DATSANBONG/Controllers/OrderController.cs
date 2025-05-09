@@ -64,7 +64,7 @@ namespace DATSANBONG.Controllers
             return StatusCode((int)response.Status, response);
         }
 
-        // Nhân viên xác nhận đơn đặt sân or xác nhận hủy đơn
+        // Nhân viên xác nhận đơn đặt sân + Xác nhận hủy sân
         [HttpPut("confirm-order/{idOrder}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -73,6 +73,30 @@ namespace DATSANBONG.Controllers
         public async Task<IActionResult> ConfirmOrder(string idOrder, [FromBody] ConfirmOrderStatusDTO status)
         {
             var response = await _orderRepository.ConfirmOrder(idOrder, status);
+            return StatusCode((int)response.Status, response);
+        }
+
+        // Khách hàng yêu cầu hủy đặt sân
+        [HttpPut("cancel-order/{idOrder}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "KHÁCH HÀNG", AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> CancelOrder(string idOrder, [FromBody] ConfirmOrderStatusDTO status)
+        {
+            var response = await _orderRepository.ConfirmOrder(idOrder, status);
+            return StatusCode((int)response.Status, response);
+        }
+
+        // Lấy ra danh sách đơn đặt sân của người dùng
+        [HttpGet("get-order-by-id-user")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(Roles = "KHÁCH HÀNG", AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> GetOrderByIdUser()
+        {
+            var response = await _orderRepository.GetOrderByIdUser();
             return StatusCode((int)response.Status, response);
         }
     }

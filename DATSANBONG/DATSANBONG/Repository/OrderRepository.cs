@@ -284,7 +284,7 @@ namespace DATSANBONG.Repository
             }
         }
 
-        // Nhân viên xác nhận đơn đặt sân
+        // Nhân viên xác nhận đơn đặt sân + Xác nhận hủy sân + Khách hàng hủy sân
         public async Task<APIResponse> ConfirmOrder(string idOrder, [FromBody] ConfirmOrderStatusDTO status)
         {
             try
@@ -296,7 +296,7 @@ namespace DATSANBONG.Repository
                     apiResponse.ErrorMessages.Add("Invalid Data");
                     return apiResponse;
                 }
-                var validStatuses = new[] { "CONFIRMED", "CONFIRMED CANCEL" };
+                var validStatuses = new[] { "CONFIRM", "CONFIRM CANCEL", "CANCEL"};
                 if (!validStatuses.Contains(status.status.ToUpper()))
                 {
                     apiResponse.Status = HttpStatusCode.BadRequest;
@@ -315,11 +315,22 @@ namespace DATSANBONG.Repository
                 }
 
 
-
-                donDatSan.TrangThai = status.status.ToUpper();
+                switch (status.status.ToUpper())
+                {
+                    case "CONFIRM":
+                        donDatSan.TrangThai = "CONFIRMED";
+                        break;
+                    case "CONFIRM CANCEL":
+                        donDatSan.TrangThai = "CANCELED";
+                        break;
+                    case "CANCEL":
+                        donDatSan.TrangThai = "PENDING CANCEL";
+                        break;
+                }
+                //donDatSan.TrangThai = status.status.ToUpper();
                 _db.DonDatSans.Update(donDatSan);
 
-                if (status.status.ToUpper() == "CONFIRMED CANCEL")
+                if (status.status.ToUpper() == "CONFIRM CANCEL")
                 {
                     var chiTietDatSans = await _db.ChiTietDonDatSans
                         .Where(x => x.MaDatSan == idOrder)
@@ -346,10 +357,15 @@ namespace DATSANBONG.Repository
                 await _db.SaveChangesAsync();
                 apiResponse.Status = HttpStatusCode.OK;
                 apiResponse.IsSuccess = true;
+                if (status.status.ToUpper() == "CONFIRM")
+                    apiResponse.Result = "Order confirmed successfully!";
 
-                apiResponse.Result = status.status.ToUpper() == "CONFIRMED CANCEL"
-                    ? "Order cancelled successfully!"
-                    : "Order confirmed successfully!";
+                if (status.status.ToUpper() == "CONFIRM CANCEL")
+                    apiResponse.Result = "Order cancelled successfully!";
+
+                if (status.status.ToUpper() == "CANCEL")
+                    apiResponse.Result = "Pending confirm cancel";
+                
 
                 return apiResponse;
             }
@@ -362,7 +378,33 @@ namespace DATSANBONG.Repository
             }
         }
 
+        public async Task<APIResponse> GetOrderByIdUser()
+        {
+            var userCurrent = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext?.User);
+            if (userCurrent == null)
+            {
+                apiResponse.Status = HttpStatusCode.Unauthorized;
+                apiResponse.IsSuccess = false;
+                apiResponse.ErrorMessages.Add("Unauthorized");
+                return apiResponse;
+            }
+            var orders = await _db.DonDatSans
+                .Include(x => x.ChiTietDonDatSans)
+                .Where(x => x.MaKhachHang == userCurrent.Id)
+                .ToListAsync();
+            if (orders == null || orders.Count == 0)
+            {
+                apiResponse.Status = HttpStatusCode.NotFound;
+                apiResponse.IsSuccess = false;
+                apiResponse.ErrorMessages.Add("No orders found");
+                return apiResponse;
+            }
+            var response = _mapper.Map<List<ResponseOrderDTO>>(orders);
 
-
+            apiResponse.Status = HttpStatusCode.OK;
+            apiResponse.IsSuccess = true;
+            apiResponse.Result = response;
+            return apiResponse;
+        }
     }
 }
