@@ -13,5 +13,6 @@ namespace DATSANBONG.Repository.IRepository
         Task<APIResponse> GetFootballFieldById(string maSanBong);
         Task<APIResponse> GetDetailFootballFieldById(string maSanCon);
         Task<APIResponse> GetAllDetailFootballField();
+        Task<APIResponse> GetDetailFootballbyStatus(string masanbong);
     }
 }

@@ -377,5 +377,75 @@ namespace DATSANBONG.Repository
                 return apiResponse;
             }
         }
+
+        public async Task<APIResponse> GetDetailFootballbyStatus(string masanbong)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(masanbong))
+                {
+                    apiResponse.IsSuccess = false;
+                    apiResponse.Status = HttpStatusCode.BadRequest;
+                    apiResponse.ErrorMessages = new List<string>() { "Invalid Information!" };
+                    return apiResponse;
+                }
+
+                var checkSanBong = await _db.SanBongs.FirstOrDefaultAsync(x => x.MaSanBong == masanbong);
+                if (checkSanBong == null)
+                {
+                    apiResponse.IsSuccess = false;
+                    apiResponse.Status = HttpStatusCode.NotFound;
+                    apiResponse.ErrorMessages = new List<string>() { "Football field not found!" };
+                    return apiResponse;
+                }
+
+                var lichsanList = await _db.LichSans
+                    .Where(x => x.MaSanBong == masanbong && x.TrangThai == "AVAILABLE")
+                    .ToListAsync();
+
+                if (!lichsanList.Any())
+                {
+                    apiResponse.IsSuccess = true;
+                    apiResponse.Status = HttpStatusCode.OK;
+                    apiResponse.Result = new List<object>(); // Trống
+                    return apiResponse;
+                }
+                var result = from ls in lichsanList
+                             join ct in _db.chiTietSanBongs
+                             on new { ls.MaSanCon, ls.MaSanBong } equals new { ct.MaSanCon, ct.MaSanBong }
+                             orderby ls.thu, ls.GioBatDau
+                             select new
+                             {
+                                 ct.MaSanCon,
+                                 ct.TenSanCon,
+                                 ct.LoaiSanCon,
+                                 ls.MaLichSan,
+                                 ls.thu,
+                                 ls.GioBatDau,
+                                 ls.GioKetThuc,
+                                 ls.GiaThue,
+                                 ls.TrangThai
+                             };
+
+                if (!result.Any())
+                {
+                    apiResponse.IsSuccess = true;
+                    apiResponse.Status = HttpStatusCode.OK;
+                    apiResponse.Result = new List<object>(); // Trống
+                    return apiResponse;
+                }
+                apiResponse.IsSuccess = true;
+                apiResponse.Status = HttpStatusCode.OK;
+                apiResponse.Result = result;
+                return apiResponse;
+            }
+            catch (Exception ex)
+            {
+                apiResponse.IsSuccess = false;
+                apiResponse.Status = HttpStatusCode.BadRequest;
+                apiResponse.ErrorMessages = new List<string>() { ex.Message };
+                return apiResponse;
+            }
+        }
     }
 }
