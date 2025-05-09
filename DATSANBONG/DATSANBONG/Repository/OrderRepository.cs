@@ -6,6 +6,7 @@ using DATSANBONG.Models;
 using DATSANBONG.Models.DTO;
 using DATSANBONG.Repository.IRepository;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace DATSANBONG.Repository
@@ -27,6 +28,7 @@ namespace DATSANBONG.Repository
             _userManager = userManager;
         }
 
+        // Khách hàng đặt sân bóng
         public async Task<APIResponse> CreateOrder(RequestOrderDTO request)
         {
             if (request == null)
@@ -145,24 +147,24 @@ namespace DATSANBONG.Repository
                 await _db.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                var result = await _db.DonDatSans
-                    .Include(d => d.ChiTietDonDatSans)
-                    .ThenInclude(c => c.ChiTietSanBong)
-                    .FirstOrDefaultAsync(d => d.MaDatSan == donDatSan.MaDatSan);
-                if (result == null)
-                {
-                    apiResponse.Status = HttpStatusCode.NotFound;
-                    apiResponse.IsSuccess = false;
-                    apiResponse.ErrorMessages.Add("Order not found");
-                    return apiResponse;
-                }
-                var response = _mapper.Map<ResponseOrderDTO>(result);
-                response.chiTietDonDatSans = result.ChiTietDonDatSans
-                    .Select(c => _mapper.Map<ChiTietDonDatSanDTO>(c))
-                    .ToList();
+                //var result = await _db.DonDatSans
+                //    .Include(d => d.ChiTietDonDatSans)
+                //    .ThenInclude(c => c.ChiTietSanBong)
+                //    .FirstOrDefaultAsync(d => d.MaDatSan == donDatSan.MaDatSan);
+                //if (result == null)
+                //{
+                //    apiResponse.Status = HttpStatusCode.NotFound;
+                //    apiResponse.IsSuccess = false;
+                //    apiResponse.ErrorMessages.Add("Order not found");
+                //    return apiResponse;
+                //}
+                //var response = _mapper.Map<ResponseOrderDTO>(result);
+                //response.chiTietDonDatSans = result.ChiTietDonDatSans
+                //    .Select(c => _mapper.Map<ChiTietDonDatSanDTO>(c))
+                //    .ToList();
                 apiResponse.Status = HttpStatusCode.Created;
                 apiResponse.IsSuccess = true;
-                apiResponse.Result = response;
+                apiResponse.Result = "Bạn đã đặt sân thành công!";
                 return apiResponse;
 
             }
@@ -174,6 +176,193 @@ namespace DATSANBONG.Repository
                 return apiResponse;
             }
         }
-    }
 
+        // Lấy ra danh sách đơn đặt sân theo trạng thái
+        public async Task<APIResponse> GetAllOrderbyStatus(string status)
+        {
+            var orders = await _db.DonDatSans
+                .Include(x => x.ChiTietDonDatSans)
+                .Where(x => x.TrangThai.ToUpper() == status.ToUpper())
+                .ToListAsync();
+            if (orders == null || orders.Count == 0)
+            {
+                apiResponse.Status = HttpStatusCode.NotFound;
+                apiResponse.IsSuccess = false;
+                apiResponse.ErrorMessages.Add($"No {status.ToUpper()} orders found");
+                return apiResponse;
+            }
+
+            var response = _mapper.Map<List<ResponseOrderDTO>>(orders);
+            //foreach (var order in response)
+            //{
+            //    var chiTietDonDatSans = await _db.ChiTietDonDatSans
+            //        .Include(x => x.ChiTietSanBong)
+            //        .Where(x => x.MaDatSan == order.maDatSan)
+            //        .ToListAsync();
+            //    order.chiTietDonDatSans = _mapper.Map<List<ChiTietDonDatSanDTO>>(chiTietDonDatSans);
+            //}
+            apiResponse.Status = HttpStatusCode.OK;
+            apiResponse.IsSuccess = true;
+            apiResponse.Result = response;
+            return apiResponse;
+        }
+
+        // Lấy ra danh sách đơn đặt sân theo trạng thái thanh toán
+        public async Task<APIResponse> GetAllOrderbyStatusTT(string status)
+        {
+            var orders = await _db.DonDatSans
+                .Include(x => x.ChiTietDonDatSans)
+                .Where(x => x.TrangThaiTT.ToUpper() == status.ToUpper())
+                .ToListAsync();
+            if (orders == null || orders.Count == 0)
+            {
+                apiResponse.Status = HttpStatusCode.NotFound;
+                apiResponse.IsSuccess = false;
+                apiResponse.ErrorMessages.Add($"No {status.ToUpper()} orders found");
+                return apiResponse;
+            }
+
+            var response = _mapper.Map<List<ResponseOrderDTO>>(orders);
+            //foreach (var order in response)
+            //{
+            //    var chiTietDonDatSans = await _db.ChiTietDonDatSans
+            //        .Include(x => x.ChiTietSanBong)
+            //        .Where(x => x.MaDatSan == order.maDatSan)
+            //        .ToListAsync();
+            //    order.chiTietDonDatSans = _mapper.Map<List<ChiTietDonDatSanDTO>>(chiTietDonDatSans);
+            //}
+            apiResponse.Status = HttpStatusCode.OK;
+            apiResponse.IsSuccess = true;
+            apiResponse.Result = response;
+            return apiResponse;
+        }
+
+        // Nhân viên xác nhân thanh toán
+        public async Task<APIResponse> ConfirmPayment(string idOrder)
+        {
+            if (string.IsNullOrEmpty(idOrder))
+            {
+                apiResponse.Status = HttpStatusCode.BadRequest;
+                apiResponse.IsSuccess = false;
+                apiResponse.ErrorMessages.Add("Invalid Data");
+                return apiResponse;
+            }
+            try
+            {
+                var donDatSan = await _db.DonDatSans
+                     .FirstOrDefaultAsync(x => x.MaDatSan == idOrder);
+                if (donDatSan == null)
+                {
+                    apiResponse.Status = HttpStatusCode.NotFound;
+                    apiResponse.IsSuccess = false;
+                    apiResponse.ErrorMessages.Add("Order not found");
+                    return apiResponse;
+                }
+
+                if (donDatSan.TrangThaiTT.ToLower() == "paid")
+                {
+                    apiResponse.Status = HttpStatusCode.OK;
+                    apiResponse.IsSuccess = true;
+                    apiResponse.Result = "This order has been paid.";
+                    return apiResponse;
+                }
+
+                donDatSan.TrangThaiTT = "Paid";
+                _db.DonDatSans.Update(donDatSan);
+                await _db.SaveChangesAsync();
+                apiResponse.Status = HttpStatusCode.OK;
+                apiResponse.IsSuccess = true;
+                apiResponse.Result = "Payment confirmed successfully!";
+                return apiResponse;
+            }
+            catch (Exception ex)
+            {
+                apiResponse.Status = HttpStatusCode.InternalServerError;
+                apiResponse.IsSuccess = false;
+                apiResponse.ErrorMessages.Add(ex.Message);
+                return apiResponse;
+            }
+        }
+
+        // Nhân viên xác nhận đơn đặt sân
+        public async Task<APIResponse> ConfirmOrder(string idOrder, [FromBody] ConfirmOrderStatusDTO status)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(idOrder) || status == null)
+                {
+                    apiResponse.Status = HttpStatusCode.BadRequest;
+                    apiResponse.IsSuccess = false;
+                    apiResponse.ErrorMessages.Add("Invalid Data");
+                    return apiResponse;
+                }
+                var validStatuses = new[] { "CONFIRMED", "CONFIRMED CANCEL" };
+                if (!validStatuses.Contains(status.status.ToUpper()))
+                {
+                    apiResponse.Status = HttpStatusCode.BadRequest;
+                    apiResponse.IsSuccess = false;
+                    apiResponse.ErrorMessages.Add("Invalid status value.");
+                    return apiResponse;
+                }
+                var donDatSan = await _db.DonDatSans
+                     .FirstOrDefaultAsync(x => x.MaDatSan == idOrder);
+                if (donDatSan == null)
+                {
+                    apiResponse.Status = HttpStatusCode.NotFound;
+                    apiResponse.IsSuccess = false;
+                    apiResponse.ErrorMessages.Add("Order not found");
+                    return apiResponse;
+                }
+
+
+
+                donDatSan.TrangThai = status.status.ToUpper();
+                _db.DonDatSans.Update(donDatSan);
+
+                if (status.status.ToUpper() == "CONFIRMED CANCEL")
+                {
+                    var chiTietDatSans = await _db.ChiTietDonDatSans
+                        .Where(x => x.MaDatSan == idOrder)
+                        .ToListAsync();
+                    foreach (var item in chiTietDatSans)
+                    {
+                        //var lichSan = await _db.LichSans
+                        //    .FirstOrDefaultAsync(x => x.MaSanCon == item.MaSanCon && x.MaSanBong == item.MaSanBong);
+                        var lichSan = await _db.LichSans
+                        .FirstOrDefaultAsync(ls =>
+                            ls.MaSanCon == item.MaSanCon &&
+                            ls.MaSanBong == item.MaSanBong &&
+                            ls.thu == item.thu &&
+                            ls.GioBatDau == item.GioBatDau &&
+                            ls.GioKetThuc == item.GioKetThuc);
+                        if (lichSan != null)
+                        {
+                            lichSan.TrangThai = "AVAILABLE";
+                            _db.LichSans.Update(lichSan);
+                        }
+                    }
+
+                }
+                await _db.SaveChangesAsync();
+                apiResponse.Status = HttpStatusCode.OK;
+                apiResponse.IsSuccess = true;
+
+                apiResponse.Result = status.status.ToUpper() == "CONFIRMED CANCEL"
+                    ? "Order cancelled successfully!"
+                    : "Order confirmed successfully!";
+
+                return apiResponse;
+            }
+            catch (Exception ex)
+            {
+                apiResponse.Status = HttpStatusCode.InternalServerError;
+                apiResponse.IsSuccess = false;
+                apiResponse.ErrorMessages.Add(ex.Message);
+                return apiResponse;
+            }
+        }
+
+
+
+    }
 }
