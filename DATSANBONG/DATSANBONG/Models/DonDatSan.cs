@@ -17,6 +17,7 @@ namespace DATSANBONG.Models
         [StringLength(450)]
         public string MaNhanVien { get; set; }
 
+        
         public DateTime NgayDat { get; set; }
 
         [StringLength(20)]

@@ -17,7 +17,8 @@ namespace DATSANBONG
             CreateMap<LichSan, LichSanDTO>().ReverseMap();
             CreateMap<LichSan, ResponseScheduleDTO>().ReverseMap();
             CreateMap<LichSan, UpdateScheduleDTO>().ReverseMap();
-
+            CreateMap<DonDatSan, ResponseOrderDTO>().ReverseMap();
+            CreateMap<ChiTietDonDatSan, ChiTietDonDatSanDTO>().ReverseMap();
         }
     }
 }

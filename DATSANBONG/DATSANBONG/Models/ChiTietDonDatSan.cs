@@ -17,6 +17,9 @@ namespace DATSANBONG.Models
         [StringLength(10)]
         public string MaSanCon { get; set; }
 
+        [StringLength(10)]
+        public string thu { get; set; }
+
         [Required]
         public TimeSpan GioBatDau { get; set; }
 
