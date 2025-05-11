@@ -37,13 +37,14 @@ namespace DATSANBONG.Models
         [ForeignKey("MaChuSan")]
         public ApplicationUser ChuSan { get; set; }
 
-        public string HinhAnh { get; set; }
 
         // Navigation
         public ICollection<NhanVien> DanhSachNhanVien { get; set; }
 
         public ICollection<ChiTietSanBong> DanhSachChiTietSan { get; set; }
         public ICollection<LichSan> DanhSachLichSan{ get; set; }
+
+        public ICollection<HinhAnh> HinhAnhs { get; set; }
 
 
     }

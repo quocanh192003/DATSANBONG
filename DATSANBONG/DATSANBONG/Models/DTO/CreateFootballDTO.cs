@@ -8,6 +8,6 @@
         public string diaChi { get; set; }
         public string soDienThoai { get; set; }
         public string moTa { get; set; }
-        public string hinhAnh { get; set; }
+        public List<IFormFile> HinhAnhFiles { get; set; }
     }
 }

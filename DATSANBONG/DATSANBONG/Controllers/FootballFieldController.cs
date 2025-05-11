@@ -25,7 +25,7 @@ namespace DATSANBONG.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Authorize(Roles = "CHỦ SÂN", AuthenticationSchemes = "Bearer")]
-        public async Task<IActionResult> CreateFootBall([FromBody] CreateFootballDTO request)
+        public async Task<IActionResult> CreateFootBall([FromForm] CreateFootballDTO request)
         {
             
             var response = await _football.CreateFootBall(request);
@@ -38,10 +38,23 @@ namespace DATSANBONG.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [Authorize(Roles = "CHỦ SÂN", AuthenticationSchemes = "Bearer")]
-        public async Task<IActionResult> UpdateFootball(string id, [FromBody] UpdateFootballDTO request)
+        public async Task<IActionResult> UpdateFootball(string id, [FromForm] UpdateFootballDTO request)
         {
 
             var response = await _football.UpdateFootball(id, request);
+            return StatusCode((int)response.Status, response);
+        }
+
+        // chủ sân xóa hình ảnh sân bóng
+        // Chủ sân cập nhật thông tin sân bóng
+        [HttpDelete("remove-image-football/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        //[Authorize(Roles = "CHỦ SÂN", AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> RemoveImageFootball(string id)
+        {
+            var response = await _football.DeleteImage(id);
             return StatusCode((int)response.Status, response);
         }
 

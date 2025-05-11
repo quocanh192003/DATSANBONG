@@ -7,6 +7,7 @@ namespace DATSANBONG.Repository.IRepository
     {
         Task<APIResponse> CreateFootBall(CreateFootballDTO request);
         Task<APIResponse> UpdateFootball(string maSanBong, UpdateFootballDTO request);
+        Task<APIResponse> DeleteImage(string imageUrl);
         Task<APIResponse> CreateDetailFootball (CreateDetailFootballDTO request);
         Task<APIResponse> UpdateDetailFootball (string masancon, UpdateDetailFootballDTO request);
         Task<APIResponse> GetAllFootballField();
