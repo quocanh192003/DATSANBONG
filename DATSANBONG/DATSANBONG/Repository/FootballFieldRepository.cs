@@ -4,6 +4,8 @@ using DATSANBONG.Data;
 using DATSANBONG.Models;
 using DATSANBONG.Models.DTO;
 using DATSANBONG.Repository.IRepository;
+using DATSANBONG.Services;
+using DATSANBONG.Services.IServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
@@ -18,16 +20,17 @@ namespace DATSANBONG.Repository
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
-
+        private readonly ICloudinaryService _cloudinaryService;
 
         public FootballFieldRepository(ApplicationDbContext db, UserManager<ApplicationUser> userManager,
-             IHttpContextAccessor httpContextAccessor, IMapper mapper)
+             IHttpContextAccessor httpContextAccessor, IMapper mapper, ICloudinaryService cloudinaryService)
         {
             _db = db;
             this.apiResponse = new APIResponse();
             _userManager = userManager;
             _httpContextAccessor = httpContextAccessor;
             _mapper = mapper;
+            _cloudinaryService = cloudinaryService;
         }
 
 
@@ -61,27 +64,80 @@ namespace DATSANBONG.Repository
             }
 
             var userCurrent = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext?.User);
-
-            var football = new SanBong()
+            if (userCurrent == null)
             {
-                MaSanBong = request.maSanBong,
-                TenSanBong = request.tenSanBong,
-                SoLuongSan = request.soLuongSan,
-                DiaChi = request.diaChi,
-                SoDienThoai = request.soDienThoai,
-                MoTa = request.moTa,
-                HinhAnh = request.hinhAnh,
-                TrangThai = "PENDING",
-                NgayDangKy = DateTime.Now,
-                MaChuSan = userCurrent.Id,
-            };
+                apiResponse.IsSuccess = false;
+                apiResponse.Status = HttpStatusCode.Unauthorized;
+                apiResponse.ErrorMessages = new List<string>() { "Unauthorized!" };
+                return apiResponse;
+            }
 
-            await _db.SanBongs.AddAsync(football);
-            await _db.SaveChangesAsync();
+            using var transaction = await _db.Database.BeginTransactionAsync(); // bắt đầu transaction
 
-            apiResponse.IsSuccess = true;
-            apiResponse.Status = HttpStatusCode.OK;
-            apiResponse.Result = football;
+            try
+            {
+                var football = new SanBong()
+                {
+                    MaSanBong = request.maSanBong,
+                    TenSanBong = request.tenSanBong,
+                    SoLuongSan = request.soLuongSan,
+                    DiaChi = request.diaChi,
+                    SoDienThoai = request.soDienThoai,
+                    MoTa = request.moTa,
+                    //HinhAnh = request.hinhAnh,
+                    TrangThai = "PENDING",
+                    NgayDangKy = DateTime.Now,
+                    MaChuSan = userCurrent.Id,
+                };
+
+                await _db.SanBongs.AddAsync(football);
+                await _db.SaveChangesAsync();
+
+                // Upload hình ảnh lên Cloudinary
+                if (request.HinhAnhFiles != null && request.HinhAnhFiles.Count > 0)
+                {
+                    foreach (var file in request.HinhAnhFiles)
+                    {
+                        var imageUrl = await _cloudinaryService.UploadImageAsync(file);
+
+                        if (imageUrl == null)
+                        {
+                            throw new Exception("Image upload failed!");
+                        }
+
+                        if (!string.IsNullOrEmpty(imageUrl))
+                        {
+                            var image = new HinhAnh
+                            {
+                                maHinhAnh = Guid.NewGuid().ToString("N").Substring(0, 10),
+                                maSanBong = football.MaSanBong,
+                                urlHinhAnh = imageUrl
+                            };
+                            await _db.HinhAnhs.AddAsync(image);
+                        }
+                    }
+                    await _db.SaveChangesAsync();
+
+                }
+
+                await transaction.CommitAsync();
+
+                var result = _mapper.Map<ResponseSanBongDTO>(football);
+
+                apiResponse.IsSuccess = true;
+                apiResponse.Status = HttpStatusCode.OK;
+                apiResponse.Result = result;
+                return apiResponse;
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync(); // rollback khi lỗi
+                apiResponse.IsSuccess = false;
+                apiResponse.Status = HttpStatusCode.InternalServerError;
+                apiResponse.ErrorMessages = new List<string>() { ex.Message };
+            }
+            
+
             return apiResponse;
         }
 
@@ -113,38 +169,122 @@ namespace DATSANBONG.Repository
                 apiResponse.ErrorMessages = new List<string>() { "You are not authorized to update this field." };
                 return apiResponse;
             }
+            using var transaction = await _db.Database.BeginTransactionAsync();
 
-            // Chỉ cập nhật nếu có giá trị mới
-            if (!string.IsNullOrWhiteSpace(request.tenSanBong))
-                football.TenSanBong = request.tenSanBong;
+            try
+            {
+                // Chỉ cập nhật nếu có giá trị mới
+                if (!string.IsNullOrWhiteSpace(request.tenSanBong))
+                    football.TenSanBong = request.tenSanBong;
 
-            if (request.soLuongSan.HasValue)
-                football.SoLuongSan = request.soLuongSan.Value;
+                if (request.soLuongSan.HasValue)
+                    football.SoLuongSan = request.soLuongSan.Value;
 
-            if (!string.IsNullOrWhiteSpace(request.diaChi))
-                football.DiaChi = request.diaChi;
+                if (!string.IsNullOrWhiteSpace(request.diaChi))
+                    football.DiaChi = request.diaChi;
 
-            if (!string.IsNullOrWhiteSpace(request.soDienThoai))
-                football.SoDienThoai = request.soDienThoai;
+                if (!string.IsNullOrWhiteSpace(request.soDienThoai))
+                    football.SoDienThoai = request.soDienThoai;
 
-            if (!string.IsNullOrWhiteSpace(request.moTa))
-                football.MoTa = request.moTa;
+                if (!string.IsNullOrWhiteSpace(request.moTa))
+                    football.MoTa = request.moTa;
 
-            if (!string.IsNullOrWhiteSpace(request.hinhAnh))
-                football.HinhAnh = request.hinhAnh;
+                if (!string.IsNullOrWhiteSpace(request.trangThai))
+                    football.TrangThai = request.trangThai;
 
-            if (!string.IsNullOrWhiteSpace(request.trangThai))
-                football.TrangThai = request.trangThai;
+                // Upload hình ảnh lên Cloudinary
+                if (request.hinhAnhFile != null && request.hinhAnhFile.Count > 0)
+                {
+                    foreach (var file in request.hinhAnhFile)
+                    {
+                        var imageUrl = await _cloudinaryService.UploadImageAsync(file);
 
+                        if (imageUrl == null)
+                        {
+                            throw new Exception("Image upload failed!");
+                        }
 
-            _db.SanBongs.Update(football);
-            await _db.SaveChangesAsync();
+                        if (!string.IsNullOrEmpty(imageUrl))
+                        {
+                            var image = new HinhAnh
+                            {
+                                maHinhAnh = Guid.NewGuid().ToString("N").Substring(0, 10),
+                                maSanBong = football.MaSanBong,
+                                urlHinhAnh = imageUrl
+                            };
+                            await _db.HinhAnhs.AddAsync(image);
+                        }
+                    }
+                    await _db.SaveChangesAsync();
 
-            apiResponse.IsSuccess = true;
-            apiResponse.Status = HttpStatusCode.OK;
-            apiResponse.Result = football;
-            return apiResponse;
+                }
+
+                _db.SanBongs.Update(football);
+                await _db.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                var result = _mapper.Map<ResponseSanBongDTO>(football);
+
+                apiResponse.IsSuccess = true;
+                apiResponse.Status = HttpStatusCode.OK;
+                apiResponse.Result = result;
+                return apiResponse;
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                apiResponse.IsSuccess = false;
+                apiResponse.Status = HttpStatusCode.InternalServerError;
+                apiResponse.ErrorMessages = new List<string> { ex.Message };
+                return apiResponse;
+            }
+            
         }
+
+        // Chủ sân xóa hình ảnh sân bóng 
+        public async Task<APIResponse> DeleteImage(string maHinhAnh)
+        {
+
+            try
+            {
+                var image = await _db.HinhAnhs.FirstOrDefaultAsync(x => x.maHinhAnh == maHinhAnh);
+
+                if (image == null)
+                {
+                    apiResponse.IsSuccess = false;
+                    apiResponse.Status = HttpStatusCode.NotFound;
+                    apiResponse.ErrorMessages = new List<string> { "Image not found!" };
+                    return apiResponse;
+                }
+
+                // Xóa trên Cloudinary
+                var result = await _cloudinaryService.DeleteImageAsync(image.urlHinhAnh);
+                if (!result)
+                {
+                    apiResponse.IsSuccess = false;
+                    apiResponse.Status = HttpStatusCode.BadRequest;
+                    apiResponse.ErrorMessages = new List<string> { "Failed to delete image on Cloudinary." };
+                    return apiResponse;
+                }
+
+                // Xóa trong DB
+                _db.HinhAnhs.Remove(image);
+                await _db.SaveChangesAsync();
+
+                apiResponse.IsSuccess = true;
+                apiResponse.Status = HttpStatusCode.OK;
+                apiResponse.Result = "Image deleted successfully.";
+                return apiResponse;
+            }
+            catch (Exception ex)
+            {
+                apiResponse.IsSuccess = false;
+                apiResponse.Status = HttpStatusCode.InternalServerError;
+                apiResponse.ErrorMessages = new List<string> { ex.Message };
+                return apiResponse;
+            }
+        }
+
 
         // Chủ sân đăng thông tin chi tiết sân con
         public async Task<APIResponse> CreateDetailFootball(CreateDetailFootballDTO request)

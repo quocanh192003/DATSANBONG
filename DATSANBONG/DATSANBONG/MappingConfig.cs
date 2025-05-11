@@ -19,6 +19,10 @@ namespace DATSANBONG
             CreateMap<LichSan, UpdateScheduleDTO>().ReverseMap();
             CreateMap<DonDatSan, ResponseOrderDTO>().ReverseMap();
             CreateMap<ChiTietDonDatSan, ChiTietDonDatSanDTO>().ReverseMap();
+            CreateMap<HinhAnh, ResponseHinhAnhDTO>().ReverseMap();
+            CreateMap<SanBong, ResponseSanBongDTO>()
+                .ForMember(dest => dest.HinhAnh, opt => opt.MapFrom(src => src.HinhAnhs))
+                .ReverseMap();
         }
     }
 }
