@@ -245,7 +245,7 @@ namespace DATSANBONG.Controllers
             return StatusCode((int)response.Status,response);
         }
 
-        // LẤY THÔNG TIN CÁ NHÂN
+        // LẤY THÔNG TIN CÁ NHÂN USER
         [HttpGet("get-profile")]
         [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> GetProfile()
