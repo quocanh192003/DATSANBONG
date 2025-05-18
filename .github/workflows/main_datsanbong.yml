@@ -24,7 +24,7 @@ jobs:
           dotnet-version: '8.x'
 
       - name: Build with dotnet
-        run: dotnet build DATSANBONG.sln --configuration Release
+        run: dotnet build "D:\DOCUMENT\ĐỒ ÁN TỐT NGHIỆP\DATSANBONG\DATSANBONG\DATSANBONG.sln" --configuration Release
 
       - name: dotnet publish
         run: dotnet publish DATSANBONG.sln -c Release -o "${{env.DOTNET_ROOT}}/myapp"
