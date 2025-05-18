@@ -244,15 +244,6 @@ namespace DATSANBONG.Controllers
             var response = await _manageRepo.UpdateInfo(request);
             return StatusCode((int)response.Status,response);
         }
-
-        // LẤY THÔNG TIN CÁ NHÂN
-        [HttpGet("get-profile")]
-        [Authorize(AuthenticationSchemes = "Bearer")]
-        public async Task<IActionResult> GetProfile()
-        {
-            var response = await _manageRepo.getProfile();
-            return StatusCode((int)response.Status, response);
-        }
     }
 
 }
