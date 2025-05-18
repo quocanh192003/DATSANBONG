@@ -20,15 +20,17 @@ namespace DATSANBONG.Repository
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailService _emailService;
         private readonly APIResponse response;
+        private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         public ManageUserRepository(ApplicationDbContext db, UserManager<ApplicationUser> userManager,
-            IEmailService emailService, IHttpContextAccessor httpContextAccessor)
+            IEmailService emailService, IHttpContextAccessor httpContextAccessor, IMapper mapper)
         {
             _db = db;
             _userManager = userManager;
             _emailService = emailService;
             this.response = new APIResponse();
             _httpContextAccessor = httpContextAccessor;
+            _mapper = mapper;
         }
 
         //ADMIN COMFIRM USER
@@ -382,7 +384,7 @@ namespace DATSANBONG.Repository
             try
             {
                 var userCurrent = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext?.User);
-                if(userCurrent == null)
+                if (userCurrent == null)
                 {
                     response.IsSuccess = false;
                     response.Status = HttpStatusCode.Unauthorized;
@@ -424,6 +426,39 @@ namespace DATSANBONG.Repository
                 response.ErrorMessages = new List<string> { ex.Message };
                 return response;
             }
+        }
+
+        // LẤY THÔNG TIN NGƯỜI DÙNG HIỆN TẠI
+        public async Task<APIResponse> getProfile()
+        {
+            var userCurrent = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext?.User);
+
+            if (userCurrent == null)
+            {
+                response.IsSuccess = false;
+                response.Status = HttpStatusCode.Unauthorized;
+                response.ErrorMessages = new List<string> { "Người dùng chưa đăng nhập hoặc phiên đăng nhập đã hết hạn." };
+                return response;
+            }
+
+            var user = await _db.ApplicationUsers.FirstOrDefaultAsync(x => x.Id == userCurrent.Id);
+            if (user == null)
+            {
+                response.IsSuccess = false;
+                response.Status = HttpStatusCode.NotFound;
+                response.ErrorMessages = new List<string> { "User is not found!" };
+                return response;
+            }
+
+            var result = _mapper.Map<ResponseProfileDTO>(user);
+            result.Role = (await _userManager.GetRolesAsync(user)).FirstOrDefault();
+
+
+
+            response.IsSuccess = true;
+            response.Status = HttpStatusCode.OK;
+            response.Result = result;
+            return response;
         }
     }
 }
