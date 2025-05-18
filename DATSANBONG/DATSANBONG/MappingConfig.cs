@@ -23,6 +23,9 @@ namespace DATSANBONG
             CreateMap<SanBong, ResponseSanBongDTO>()
                 .ForMember(dest => dest.HinhAnh, opt => opt.MapFrom(src => src.HinhAnhs))
                 .ReverseMap();
+            CreateMap<ApplicationUser, ResponseProfileDTO>().ReverseMap();
+
+
         }
     }
 }
