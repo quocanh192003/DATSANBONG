@@ -1,6 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy ASP.Net Core app to Azure Web App - Datsanbong
 
 on:
@@ -24,10 +21,10 @@ jobs:
           dotnet-version: '8.x'
 
       - name: Build with dotnet
-        run: dotnet build "D:\DOCUMENT\DO_AN_TOT_NHIEP\DATSANBONG\DATSANBONG\DATSANBONG.sln" --configuration Release
+        run: dotnet build DATSANBONG/DATSANBONG/DATSANBONG.csproj --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish DATSANBONG.sln -c Release -o "${{env.DOTNET_ROOT}}/myapp"
+        run: dotnet publish DATSANBONG/DATSANBONG/DATSANBONG.csproj -c Release -o "${{env.DOTNET_ROOT}}/myapp"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -50,13 +47,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-      
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_7045F45A245B4BCE9998CCB92ECD8E43 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C903671EBC3E4D3C9605ADD25757B97F }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_ACB160EFED5346418FA5534D3195AA48 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_7DBC1D45B76746CB963AC677B98EFABF }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_BAFCB70F7D61446F89814F3DACD86001 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_E6CC1C605C5141D19918EC5D031A8F91 }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -65,3 +62,5 @@ jobs:
           app-name: 'Datsanbong'
           slot-name: 'Production'
           package: .
+
+          
