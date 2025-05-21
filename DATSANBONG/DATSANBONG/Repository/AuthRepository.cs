@@ -48,15 +48,6 @@ namespace DATSANBONG.Repository
         {
             var user =_db.ApplicationUsers
                 .FirstOrDefault(u => u.UserName.ToLower() == model.Username.ToLower());
-
-            if (user.TrangThai != "ACTIVE" || !user.EmailConfirmed)
-            {
-                return null;
-            }
-
-
-
-            bool isValid = await _userManager.CheckPasswordAsync(user, model.Password);
             if (user == null)
             {
                 return new LoginResponseDTO()
@@ -64,8 +55,23 @@ namespace DATSANBONG.Repository
                     User = null,
                     Token = ""
                 };
-
             }
+            if (user.TrangThai != "ACTIVE" || !user.EmailConfirmed)
+            {
+                return null;
+            }
+
+
+
+            if (!await _userManager.CheckPasswordAsync(user, model.Password))
+            {
+                return new LoginResponseDTO()
+                {
+                    User = null,
+                    Token = ""
+                };
+            }
+
             //If user was found generate JWT Token
             var roles = await _userManager.GetRolesAsync(user);
             var tokenHandler = new JwtSecurityTokenHandler();

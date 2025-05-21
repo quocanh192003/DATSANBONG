@@ -40,9 +40,9 @@ namespace DATSANBONG.Controllers
             if (loginResponse == null)
             {
                 _apiResponse.IsSuccess = false;
-                _apiResponse.Status = HttpStatusCode.BadRequest;
+                _apiResponse.Status = HttpStatusCode.Unauthorized;
                 _apiResponse.ErrorMessages.Add("Users who do not have access!");
-                return BadRequest(_apiResponse);
+                return Unauthorized(_apiResponse);
             }
 
             if (loginResponse.User == null || string.IsNullOrEmpty(loginResponse.Token))
