@@ -1,0 +1,12 @@
+﻿namespace DATSANBONG.Models.DTO
+{
+    public class ResponseDetailEvaluateDTO
+    {
+        public string MaSanBong { get; set; }
+        public int SoSao { get; set; }
+        public string BinhLuan { get; set; }
+        public DateTime NgayDanhGia { get; set; }
+        public NguoiDungEvaluateDTO NguoiDung { get; set; }
+        public DanhGiaThongKeDTO DanhGiaThongKe { get; set; }
+    }
+}

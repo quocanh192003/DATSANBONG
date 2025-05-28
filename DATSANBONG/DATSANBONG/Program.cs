@@ -41,6 +41,7 @@ builder.Services.AddScoped<IFootballFieldRepository, FootballFieldRepository>();
 builder.Services.AddScoped<IScheduleRepository, ScheduleRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<ICloudinaryService,CloudinaryService>();
+builder.Services.AddScoped<IEvaluateRepository, EvaluateRepository>();
 
 builder.Services.AddHttpContextAccessor();
 

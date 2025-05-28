@@ -16,7 +16,7 @@ namespace DATSANBONG.Data
         public DbSet<DonDatSan> DonDatSans { get; set; }
         public DbSet<ChiTietDonDatSan> ChiTietDonDatSans { get; set; }
         public DbSet<HinhAnh> HinhAnhs { get; set; }
-
+        public DbSet<DanhGia> DanhGias { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
