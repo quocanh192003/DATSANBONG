@@ -46,6 +46,6 @@ namespace DATSANBONG.Models
 
         public ICollection<HinhAnh> HinhAnhs { get; set; }
 
-
+        public virtual ICollection<DanhGia> DanhGias { get; set; }
     }
 }

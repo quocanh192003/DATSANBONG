@@ -2,6 +2,7 @@
 using DATSANBONG.Models;
 using DATSANBONG.Models.DTO;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
+using static DATSANBONG.Models.DTO.ResponseEvaluateDTO;
 
 namespace DATSANBONG
 {
@@ -23,7 +24,16 @@ namespace DATSANBONG
             CreateMap<SanBong, ResponseSanBongDTO>()
                 .ForMember(dest => dest.HinhAnh, opt => opt.MapFrom(src => src.HinhAnhs))
                 .ReverseMap();
-            CreateMap<ApplicationUser, ResponseProfileDTO>().ReverseMap();
+            // Mapping từ ApplicationUser sang NguoiDungEvaluateDTO
+            CreateMap<ApplicationUser, NguoiDungEvaluateDTO>()
+                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.HoTen, opt => opt.MapFrom(src => src.HoTen));
+
+            // Mapping từ DanhGia sang DanhGiaResponseDTO
+            CreateMap<DanhGia, ResponseEvaluateDTO>()
+                .ForMember(dest => dest.NguoiDung, opt => opt.MapFrom(src => src.NguoiDung));
+
+            CreateMap<DanhGia, ResponseDetailEvaluateDTO>().ReverseMap();
         }
     }
 }
