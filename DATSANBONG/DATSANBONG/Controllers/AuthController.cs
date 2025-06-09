@@ -65,6 +65,14 @@ namespace DATSANBONG.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<APIResponse>> Register([FromBody] RegisterRequestDTO model)
         {
+            if (model == null)
+            {
+                _apiResponse.Status = HttpStatusCode.BadRequest;
+                _apiResponse.IsSuccess = false;
+                _apiResponse.ErrorMessages.Add("Payload bị null.");
+                return BadRequest(_apiResponse);
+            }
+
             bool ifUserNameUnique = _authRepo.IsUniqueUser(model.Username);
             if (!ifUserNameUnique)
             {

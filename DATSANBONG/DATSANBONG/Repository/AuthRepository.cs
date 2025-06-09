@@ -100,76 +100,75 @@ namespace DATSANBONG.Repository
 
         public async Task<NguoiDungDTO> Register(RegisterRequestDTO model)
         {
-            // Kiểm tra tính hợp lệ của email
+
+            // Kiểm tra email
             if (!new EmailAddressAttribute().IsValid(model.Email))
-            {
-                throw new Exception("The specified string is not in the form required for an e-mail address.");
-            }
-            ApplicationUser user = new()
+                throw new ArgumentException("Email không hợp lệ.");
+
+            var user = new ApplicationUser
             {
                 UserName = model.Username,
                 HoTen = model.HoTen,
                 Email = model.Email,
                 NgaySinh = model.NgaySinh,
                 TrangThai = "PENDING",
-                NormalizedEmail = model.Username.ToUpper(),
                 GioiTinh = model.GioiTinh,
-                PhoneNumber = model.SoDienThoai
+                PhoneNumber = model.SoDienThoai,
+                NormalizedEmail = model.Username.ToUpper()
             };
 
-            try
+            // Tạo người dùng
+            var result = await _userManager.CreateAsync(user, model.Password);
+            if (!result.Succeeded)
             {
-                // Tạo người dùng và kiểm tra kết quả
-                var result = await _userManager.CreateAsync(user, model.Password);
-                if (result.Succeeded)
-                {
-                    if (!_roleManager.RoleExistsAsync("ADMIN").GetAwaiter().GetResult())
-                    {
-                        await _roleManager.CreateAsync(new IdentityRole("ADMIN"));
-                        await _roleManager.CreateAsync(new IdentityRole("CHỦ SÂN"));
-                        await _roleManager.CreateAsync(new IdentityRole("KHÁCH HÀNG"));
-                        await _roleManager.CreateAsync(new IdentityRole("NHÂN VIÊN"));
-
-                    }
-                    var roleName = model.TenVaiTro.Trim();
-                    var addRoleResult = await _userManager.AddToRoleAsync(user, roleName);
-                    if (!addRoleResult.Succeeded)
-                    {
-                        throw new Exception("Error assigning role: " +
-                            string.Join("; ", addRoleResult.Errors.Select(e => e.Description)));
-                    }
-                    if(roleName == "ADMIN")
-                    {
-                        user.TrangThai = "ACTIVE";
-                    }
-                    _db.ApplicationUsers.Update(user);
-                    await _db.SaveChangesAsync();
-                    // Xác nhận email
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    await _emailService.SendEmail(user.Email, "Email Confirmation", code);
-
-                    //var userToReturn = _db.ApplicationUsers
-                    //    .FirstOrDefault(u => u.UserName == model.Username);
-                    return new NguoiDungDTO
-                    {
-                        UserName = user.UserName,
-                        Email = user.Email,
-                        ConfirmationMessage = "Please confirm your email with the code that you received!"
-                    };
-
-                }
-                else
-                {
-                    // Ghi nhận và ném các lỗi mật khẩu hoặc bất kỳ lỗi nào khác
-                    string errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                    throw new Exception(errors);
-                }
+                string errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new Exception($"Lỗi tạo tài khoản: {errors}");
             }
-            catch (Exception e)
+
+            // Tạo roles nếu chưa có
+            await CreateRolesIfNotExistsAsync();
+
+            // Gán vai trò
+            var roleName = model.TenVaiTro.Trim().ToUpper();
+            var roleAssignResult = await _userManager.AddToRoleAsync(user, roleName);
+            if (!roleAssignResult.Succeeded)
             {
-                throw new Exception(e.Message);
+                string errors = string.Join(", ", roleAssignResult.Errors.Select(e => e.Description));
+                throw new Exception($"Lỗi gán vai trò: {errors}");
+            }
+
+            // Nếu là ADMIN, tự động active
+            if (roleName == "ADMIN")
+            {
+                user.TrangThai = "ACTIVE";
+                _db.ApplicationUsers.Update(user);
+                await _db.SaveChangesAsync();
+            }
+
+            // Gửi email xác nhận
+            var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            await _emailService.SendEmail(user.Email, "Xác nhận email", code);
+
+            return new NguoiDungDTO
+            {
+                UserName = user.UserName,
+                Email = user.Email,
+                ConfirmationMessage = "Hãy kiểm tra email để xác nhận tài khoản."
+            };
+        }
+
+        private async Task CreateRolesIfNotExistsAsync()
+        {
+            var roles = new[] { "ADMIN", "CHỦ SÂN", "KHÁCH HÀNG", "NHÂN VIÊN" };
+            foreach (var role in roles)
+            {
+                if (!await _roleManager.RoleExistsAsync(role))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole(role));
+                }
             }
         }
+
 
         public async Task<ResponseTokenPasswordDTO> ForgotPassword(RequestForgotPasswordDTO request)
         {
