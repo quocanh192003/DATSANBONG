@@ -92,10 +92,11 @@ namespace DATSANBONG.Controllers
                     _apiResponse.ErrorMessages.Add("Error while registering!");
                     return BadRequest(_apiResponse);
                 }
-                _apiResponse.Status = HttpStatusCode.OK;
-                _apiResponse.Result = user;
-                _apiResponse.IsSuccess = true;
-                return Ok(_apiResponse);
+                //_apiResponse.Status = HttpStatusCode.OK;
+                //_apiResponse.Result = user;
+                //_apiResponse.IsSuccess = true;
+
+                return Ok(user);
             }
             catch (Exception ex)
             {
