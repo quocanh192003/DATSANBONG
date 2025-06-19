@@ -417,26 +417,37 @@ namespace DATSANBONG.Repository
         {
             try
             {
-                var footballFields = await _db.SanBongs.ToListAsync();
+                var footballFields = await _db.SanBongs
+                    .Include(sb => sb.HinhAnhs) // Include hình ảnh
+                    .ToListAsync();
+
                 if (footballFields == null || !footballFields.Any())
                 {
-                    apiResponse.IsSuccess = false;
-                    apiResponse.Status = HttpStatusCode.NotFound;
-                    apiResponse.ErrorMessages = new List<string>() { "No football fields found!" };
-                    return apiResponse;
+                    return new APIResponse
+                    {
+                        IsSuccess = false,
+                        Status = HttpStatusCode.NotFound,
+                        ErrorMessages = new List<string>() { "No football fields found!" }
+                    };
                 }
+
                 var footballFieldsDTO = _mapper.Map<List<SanBongDTO>>(footballFields);
-                apiResponse.IsSuccess = true;
-                apiResponse.Status = HttpStatusCode.OK;
-                apiResponse.Result = footballFieldsDTO;
-                return apiResponse;
+
+                return new APIResponse
+                {
+                    IsSuccess = true,
+                    Status = HttpStatusCode.OK,
+                    Result = footballFieldsDTO
+                };
             }
             catch (Exception ex)
             {
-                apiResponse.IsSuccess = false;
-                apiResponse.Status = HttpStatusCode.BadRequest;
-                apiResponse.ErrorMessages = new List<string>() { ex.Message };
-                return apiResponse;
+                return new APIResponse
+                {
+                    IsSuccess = false,
+                    Status = HttpStatusCode.BadRequest,
+                    ErrorMessages = new List<string>() { ex.Message }
+                };
             }
         }
 

@@ -34,6 +34,10 @@ namespace DATSANBONG
                 .ForMember(dest => dest.NguoiDung, opt => opt.MapFrom(src => src.NguoiDung));
 
             CreateMap<DanhGia, ResponseDetailEvaluateDTO>().ReverseMap();
+            CreateMap<SanBong, SanBongDTO>()
+            .ForMember(dest => dest.HinhAnhs, opt => opt.MapFrom(src => src.HinhAnhs));
+
+            CreateMap<HinhAnh, HinhAnhDTO>();
         }
     }
 }

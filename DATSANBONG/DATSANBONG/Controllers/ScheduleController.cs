@@ -42,7 +42,7 @@ namespace DATSANBONG.Controllers
         [HttpGet("get-schedule-by-id-detail-football/{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        //[Authorize(AuthenticationSchemes = "Bearer")]
+        [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> GetScheduleByIdDetailFootball(string id)
         {
             var response = await _scheduleRepository.GetScheduleByIdDetailFootball(id);
@@ -66,7 +66,7 @@ namespace DATSANBONG.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //[Authorize(Roles = "CHỦ SÂN, NHÂN VIÊN", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "CHỦ SÂN, NHÂN VIÊN", AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> DeleteSchedule(string id)
         {
             var response = await _scheduleRepository.DeleteSchedule(id);
