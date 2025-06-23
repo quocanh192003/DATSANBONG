@@ -5,6 +5,7 @@ using DATSANBONG.Models;
 using DATSANBONG.Models.DTO;
 using DATSANBONG.Repository.IRepository;
 using Microsoft.AspNetCore.Http.Metadata;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -15,11 +16,16 @@ namespace DATSANBONG.Repository
         private readonly ApplicationDbContext _db;
         private readonly IMapper _mapper;
         private readonly APIResponse apiResponse;
-        public ScheduleRepository(ApplicationDbContext db, IMapper mapper)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public ScheduleRepository(ApplicationDbContext db, IMapper mapper, UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor)
         {
             _db = db;
             _mapper = mapper;
             this.apiResponse = new APIResponse();
+            _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
         }
         public async Task<APIResponse> CreatSchedule(LichSanDTO request)
         {
@@ -31,6 +37,58 @@ namespace DATSANBONG.Repository
                 return apiResponse;
             }
 
+            var userCurrent = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext?.User);
+            if (userCurrent == null)
+            {
+                apiResponse.IsSuccess = false;
+                apiResponse.Status = HttpStatusCode.Unauthorized;
+                apiResponse.ErrorMessages = new List<string> { "Bạn cần đăng nhập." };
+                return apiResponse;
+            }
+
+            // ✅ Lấy vai trò của người dùng hiện tại
+            var roles = await _userManager.GetRolesAsync(userCurrent);
+
+            bool isChuSan = roles.Contains("CHỦ SÂN");
+            bool isNhanVien = roles.Contains("NHÂN VIÊN");
+
+            // ✅ Nếu là chủ sân → kiểm tra có phải chủ của sân đó không
+            if (isChuSan)
+            {
+                bool isOwnerOfSan = await _db.SanBongs
+                    .AnyAsync(s => s.MaSanBong == request.MaSanBong && s.MaChuSan == userCurrent.Id);
+
+                if (!isOwnerOfSan)
+                {
+                    apiResponse.IsSuccess = false;
+                    apiResponse.Status = HttpStatusCode.Forbidden;
+                    apiResponse.ErrorMessages = new List<string> { "Bạn không phải chủ của sân này." };
+                    return apiResponse;
+                }
+            }
+            else if (isNhanVien)
+            {
+                // ✅ Nếu là nhân viên → kiểm tra có thuộc sân đó không
+                bool isStaffOfSan = await _db.NhanViens
+                    .AnyAsync(nv => nv.MaNhanVien == userCurrent.Id && nv.MaSanBong == request.MaSanBong);
+
+                if (!isStaffOfSan)
+                {
+                    apiResponse.IsSuccess = false;
+                    apiResponse.Status = HttpStatusCode.Forbidden;
+                    apiResponse.ErrorMessages = new List<string> { "Bạn không có quyền tạo lịch cho sân này." };
+                    return apiResponse;
+                }
+            }
+            else
+            {
+                apiResponse.IsSuccess = false;
+                apiResponse.Status = HttpStatusCode.Forbidden;
+                apiResponse.ErrorMessages = new List<string> { "Bạn không có quyền thực hiện chức năng này." };
+                return apiResponse;
+            }
+
+            // ✅ Tạo lịch sân
             try
             {
                 var schedule = _mapper.Map<LichSan>(request);
@@ -63,6 +121,7 @@ namespace DATSANBONG.Repository
                 return apiResponse;
             }
         }
+
         public async Task<APIResponse> GetAllSchedule()
         {
             var schedules = await _db.LichSans.ToListAsync();
