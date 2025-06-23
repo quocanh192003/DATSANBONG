@@ -136,7 +136,7 @@ namespace DATSANBONG.Repository
                 apiResponse.Status = HttpStatusCode.InternalServerError;
                 apiResponse.ErrorMessages = new List<string>() { ex.Message };
             }
-            
+
 
             return apiResponse;
         }
@@ -238,7 +238,7 @@ namespace DATSANBONG.Repository
                 apiResponse.ErrorMessages = new List<string> { ex.Message };
                 return apiResponse;
             }
-            
+
         }
 
         // Chủ sân xóa hình ảnh sân bóng 
@@ -597,6 +597,35 @@ namespace DATSANBONG.Repository
                 apiResponse.ErrorMessages = new List<string>() { ex.Message };
                 return apiResponse;
             }
+        }
+
+        // nhân viên cập nhật trạng thái sân khi đã đá xong
+        public async Task<APIResponse> UpdateStatusFootballField(string masancon)
+        {
+            if (string.IsNullOrWhiteSpace(masancon))
+            {
+                apiResponse.IsSuccess = false;
+                apiResponse.Status = HttpStatusCode.BadRequest;
+                apiResponse.ErrorMessages = new List<string>() { "Invalid Information!" };
+                return apiResponse;
+            }
+            var detailFootballField = await _db.chiTietSanBongs.FirstOrDefaultAsync(x => x.MaSanCon == masancon);
+            if (detailFootballField == null)
+            {
+                apiResponse.IsSuccess = false;
+                apiResponse.Status = HttpStatusCode.NotFound;
+                apiResponse.ErrorMessages = new List<string>() { "Detail football field not found!" };
+                return apiResponse;
+            }
+
+            detailFootballField.TrangThaiSan = "status.ToUpper()";
+            _db.chiTietSanBongs.Update(detailFootballField);
+            await _db.SaveChangesAsync();
+            var result = _mapper.Map<ResponseDetailFootballDTO>(detailFootballField);
+            apiResponse.IsSuccess = true;
+            apiResponse.Status = HttpStatusCode.OK;
+            apiResponse.Result = result;
+            return apiResponse;
         }
     }
 }

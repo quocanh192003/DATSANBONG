@@ -13,7 +13,7 @@ namespace DATSANBONG.Controllers
     public class FootballFieldController : Controller
     {
         private readonly IFootballFieldRepository _football;
-        
+
         public FootballFieldController(IFootballFieldRepository football)
         {
             _football = football;
@@ -27,7 +27,7 @@ namespace DATSANBONG.Controllers
         [Authorize(Roles = "CHỦ SÂN", AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> CreateFootBall([FromForm] CreateFootballDTO request)
         {
-            
+
             var response = await _football.CreateFootBall(request);
             return StatusCode((int)response.Status, response);
         }
@@ -145,5 +145,16 @@ namespace DATSANBONG.Controllers
             return StatusCode((int)response.Status, response);
         }
 
+        //Cập nhật trạng thái sân bóng
+        [HttpPut("update-status-football/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateStatusFootballField(string id)
+        {
+            var response = await _football.UpdateStatusFootballField(id);
+            return StatusCode((int)response.Status, response);
+
+        }
     }
 }
