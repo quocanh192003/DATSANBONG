@@ -4,6 +4,7 @@ namespace DATSANBONG.Models.DTO
 {
     public class EmlpyeeDTO
     {
+        public string MaNhanVien { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
         public string HoTen { get; set; }

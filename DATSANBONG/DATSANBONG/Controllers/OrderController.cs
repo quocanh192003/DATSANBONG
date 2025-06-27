@@ -21,7 +21,7 @@ namespace DATSANBONG.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Authorize(Roles = "KHÁCH HÀNG", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "KHÁCH HÀNG, CHỦ SÂN, NHÂN VIÊN", AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> CreateOrder([FromBody] RequestOrderDTO request)
         {
             var response = await _orderRepository.CreateOrder(request);

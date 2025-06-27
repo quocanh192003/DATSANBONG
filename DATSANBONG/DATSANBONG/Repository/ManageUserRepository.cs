@@ -323,12 +323,14 @@ namespace DATSANBONG.Repository
                                        join user in _db.Users on nv.MaNhanVien equals user.Id
                                        select new EmlpyeeDTO
                                        {
+                                           MaNhanVien = nv.MaNhanVien,
                                            Username = user.UserName,
                                            HoTen = user.HoTen,
                                            Email = user.Email,
                                            GioiTinh = user.GioiTinh,
                                            SoDienThoai = user.PhoneNumber,
                                            MaSanBong = nv.MaSanBong
+                                           
                                        }).ToListAsync();
 
                 response.IsSuccess = true;
@@ -353,6 +355,7 @@ namespace DATSANBONG.Repository
                                   where user.Id == id
                                   select new EmlpyeeDTO
                                   {
+                                      MaNhanVien = nv.MaNhanVien,
                                       Username = user.UserName,
                                       HoTen = user.HoTen,
                                       Email = user.Email,

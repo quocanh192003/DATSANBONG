@@ -38,6 +38,7 @@ namespace DATSANBONG
             .ForMember(dest => dest.HinhAnhs, opt => opt.MapFrom(src => src.HinhAnhs));
 
             CreateMap<HinhAnh, HinhAnhDTO>();
+            CreateMap<ApplicationUser, ResponseProfileDTO>().ReverseMap();
         }
     }
 }
