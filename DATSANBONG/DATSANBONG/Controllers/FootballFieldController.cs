@@ -77,7 +77,7 @@ namespace DATSANBONG.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Authorize(Roles = "NHÂN VIÊN", AuthenticationSchemes = "Bearer")]
+        [Authorize(Roles = "CHỦ SÂN, NHÂN VIÊN", AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> UpdateDetailFootball(string id, [FromBody] UpdateDetailFootballDTO request)
         {
 
