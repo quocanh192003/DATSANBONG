@@ -154,12 +154,12 @@ namespace DATSANBONG.Repository
                 response.ErrorMessages = new List<string> { "Vui lòng điền đầy đủ các thông tin bắt buộc." };
                 return response;
             }
+
             if (!new EmailAddressAttribute().IsValid(request.Email))
             {
-
                 response.IsSuccess = false;
                 response.Status = HttpStatusCode.BadRequest;
-                response.ErrorMessages = new List<string> { "The specified string is not a valid email address." };
+                response.ErrorMessages = new List<string> { "Email không hợp lệ." };
                 return response;
             }
 
@@ -184,7 +184,10 @@ namespace DATSANBONG.Repository
                     TrangThai = "PENDING",
                     NormalizedEmail = request.Email.ToUpper(),
                     GioiTinh = request.GioiTinh,
-                    PhoneNumber = request.SoDienThoai
+                    PhoneNumber = request.SoDienThoai,
+
+                    // ✅ Bỏ xác thực email
+                    EmailConfirmed = true
                 };
 
                 var createResult = await _userManager.CreateAsync(employee1, request.Password);
@@ -219,12 +222,9 @@ namespace DATSANBONG.Repository
 
                 await transaction.CommitAsync();
 
-                var code = await _userManager.GenerateEmailConfirmationTokenAsync(employee1);
-                await _emailService.SendEmail(employee1.Email, "Email Confirmation", code);
-
                 response.IsSuccess = true;
                 response.Status = HttpStatusCode.OK;
-                response.Result = "Please confirm your email with the code that you received!";
+                response.Result = "Tạo tài khoản nhân viên thành công";
                 return response;
             }
             catch (Exception ex)
@@ -236,6 +236,7 @@ namespace DATSANBONG.Repository
                 return response;
             }
         }
+
 
         // CHỦ SÂN REMOVE NHÂN VIÊN
         public async Task<APIResponse> DeleteEmployee(string EmployeeId)
