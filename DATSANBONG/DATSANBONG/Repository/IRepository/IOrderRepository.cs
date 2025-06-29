@@ -12,6 +12,6 @@ namespace DATSANBONG.Repository.IRepository
         Task<APIResponse> ConfirmPayment(string idOrder);
         Task<APIResponse> ConfirmOrder(string idOrder, ConfirmOrderStatusDTO status);
         Task<APIResponse> GetOrderByIdUser();
-
+        Task<APIResponse> GetOrderByIdStaff();
     }
 }

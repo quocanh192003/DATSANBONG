@@ -406,5 +406,35 @@ namespace DATSANBONG.Repository
             apiResponse.Result = response;
             return apiResponse;
         }
+
+        // get order by id staff
+        public async Task<APIResponse> GetOrderByIdStaff()
+        {
+            var userCurrent = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext?.User);
+            if (userCurrent == null)
+            {
+                apiResponse.Status = HttpStatusCode.Unauthorized;
+                apiResponse.IsSuccess = false;
+                apiResponse.ErrorMessages.Add("Unauthorized");
+                return apiResponse;
+            }
+            var staffOrders = await _db.DonDatSans
+                .Include(x => x.ChiTietDonDatSans)
+                .Where(x => x.MaNhanVien == userCurrent.Id)
+                .ToListAsync();
+            if (staffOrders == null || staffOrders.Count == 0)
+            {
+                apiResponse.Status = HttpStatusCode.NotFound;
+                apiResponse.IsSuccess = false;
+                apiResponse.ErrorMessages.Add("No orders found for this staff");
+                return apiResponse;
+            }
+            var response = _mapper.Map<List<ResponseOrderDTO>>(staffOrders);
+            apiResponse.Status = HttpStatusCode.OK;
+            apiResponse.IsSuccess = true;
+            apiResponse.Result = response;
+            return apiResponse;
+        }
+        
     }
 }

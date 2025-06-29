@@ -7,7 +7,7 @@ namespace DATSANBONG.Controllers
 {
     [Route("api/order")]
     [ApiController]
-    public class OrderController:Controller
+    public class OrderController : Controller
     {
         private readonly IOrderRepository _orderRepository;
         public OrderController(IOrderRepository orderRepository)
@@ -97,6 +97,18 @@ namespace DATSANBONG.Controllers
         public async Task<IActionResult> GetOrderByIdUser()
         {
             var response = await _orderRepository.GetOrderByIdUser();
+            return StatusCode((int)response.Status, response);
+        }
+
+        // Lấy ra danh sách đơn đặt sân của nhân viên
+        [HttpGet("get-order-by-id-staff")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> GetOrderByIdStaff()
+        {
+            var response = await _orderRepository.GetOrderByIdStaff();
             return StatusCode((int)response.Status, response);
         }
     }
