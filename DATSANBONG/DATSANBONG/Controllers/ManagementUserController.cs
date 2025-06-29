@@ -48,7 +48,7 @@ namespace DATSANBONG.Controllers
             _apiResponse.IsSuccess = true; ;
             _apiResponse.Result = user;
             return Ok(_apiResponse);
-            
+
         }
 
         // ADMIN LOCK USER
@@ -79,7 +79,7 @@ namespace DATSANBONG.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [Authorize(Roles = "ADMIN", AuthenticationSchemes ="Bearer")]
+        [Authorize(Roles = "ADMIN", AuthenticationSchemes = "Bearer")]
         public async Task<ActionResult<APIResponse>> GetUser(string username)
         {
             try
@@ -104,10 +104,10 @@ namespace DATSANBONG.Controllers
                 _apiResponse.Result = result;
                 return Ok(_apiResponse);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _apiResponse.IsSuccess = false;
-                _apiResponse.ErrorMessages = new List<string>() { ex.Message};
+                _apiResponse.ErrorMessages = new List<string>() { ex.Message };
                 return BadRequest(_apiResponse);
             }
         }
@@ -161,7 +161,7 @@ namespace DATSANBONG.Controllers
                 }
 
                 var user = await _repo.GetAsync(x => x.Id == id);
-                if(user == null)
+                if (user == null)
                 {
                     _apiResponse.IsSuccess = false;
                     _apiResponse.Status = HttpStatusCode.NotFound;
@@ -176,7 +176,7 @@ namespace DATSANBONG.Controllers
                 return Ok(_apiResponse);
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _apiResponse.IsSuccess = false;
                 _apiResponse.ErrorMessages = new List<string> { ex.Message };
@@ -242,7 +242,7 @@ namespace DATSANBONG.Controllers
         public async Task<IActionResult> UpdateInfo([FromBody] UpdateInfoDTO request)
         {
             var response = await _manageRepo.UpdateInfo(request);
-            return StatusCode((int)response.Status,response);
+            return StatusCode((int)response.Status, response);
         }
 
         // LẤY THÔNG TIN CÁ NHÂN USER
@@ -253,6 +253,15 @@ namespace DATSANBONG.Controllers
             var response = await _manageRepo.getProfile();
             return StatusCode((int)response.Status, response);
         }
-    }
 
+        // LẤY THÔNG TIN NHÂN VIÊN THEO CHỦ SÂN
+        [HttpGet("get-employee-by-chusan")]
+        [Authorize(Roles = "CHỦ SÂN", AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> GetEmployeeByChuSan()
+        {
+            var response = await _manageRepo.getAllEmployeesByOwner();
+            return StatusCode((int)response.Status, response);
+        }
+
+    }
 }

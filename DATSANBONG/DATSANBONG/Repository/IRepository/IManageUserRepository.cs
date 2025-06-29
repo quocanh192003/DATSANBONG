@@ -14,5 +14,6 @@ namespace DATSANBONG.Repository.IRepository
         Task<APIResponse> GetEmployee(string id);
         Task<APIResponse> UpdateInfo(UpdateInfoDTO request);
         Task<APIResponse> getProfile();
+        Task<APIResponse> getAllEmployeesByOwner();
     }
 }

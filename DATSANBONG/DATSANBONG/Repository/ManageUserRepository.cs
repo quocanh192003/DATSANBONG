@@ -464,5 +464,73 @@ namespace DATSANBONG.Repository
             response.Result = result;
             return response;
         }
+
+        //lấy ra tất cả nhân viên theo mã chủ sân
+        //public async Task<APIResponse> getAllEmployeesByOwner(string maChuSan)
+        //{
+        //    var employees = await (from nv in _db.NhanViens
+        //                           join user in _db.Users on nv.MaNhanVien equals user.Id
+        //                           where nv.MaChuSan == maChuSan
+        //                           select new EmlpyeeDTO
+        //                           {
+        //                               MaNhanVien = nv.MaNhanVien,
+        //                               Username = user.UserName,
+        //                               HoTen = user.HoTen,
+        //                               Email = user.Email,
+        //                               GioiTinh = user.GioiTinh,
+        //                               SoDienThoai = user.PhoneNumber,
+        //                               MaSanBong = nv.MaSanBong
+        //                           }).ToListAsync();
+        //    if (employees == null || !employees.Any())
+        //    {
+        //        response.IsSuccess = false;
+        //        response.Status = HttpStatusCode.NotFound;
+        //        response.ErrorMessages = new List<string> { "Không tìm thấy nhân viên." };
+        //        return response;
+        //    }
+        //    response.IsSuccess = true;
+        //    response.Status = HttpStatusCode.OK;
+        //    response.Result = employees;
+        //    return response;
+        //}
+
+        public async Task<APIResponse> getAllEmployeesByOwner()
+        {
+            var userCurrent = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext?.User);
+
+            if (userCurrent == null)
+            {
+                response.IsSuccess = false;
+                response.Status = HttpStatusCode.Unauthorized;
+                response.ErrorMessages = new List<string> { "Người dùng chưa đăng nhập hoặc phiên đăng nhập đã hết hạn." };
+                return response;
+            }
+
+
+            var employees = await (from nv in _db.NhanViens
+                                   join user in _db.Users on nv.MaNhanVien equals user.Id
+                                   where nv.MaChuSan == userCurrent.Id
+                                   select new EmlpyeeDTO
+                                   {
+                                       MaNhanVien = nv.MaNhanVien,
+                                       Username = user.UserName,
+                                       HoTen = user.HoTen,
+                                       Email = user.Email,
+                                       GioiTinh = user.GioiTinh,
+                                       SoDienThoai = user.PhoneNumber,
+                                       MaSanBong = nv.MaSanBong
+                                   }).ToListAsync();
+            if (employees == null || !employees.Any())
+            {
+                response.IsSuccess = false;
+                response.Status = HttpStatusCode.NotFound;
+                response.ErrorMessages = new List<string> { "Không tìm thấy nhân viên." };
+                return response;
+            }
+            response.IsSuccess = true;
+            response.Status = HttpStatusCode.OK;
+            response.Result = employees;
+            return response;
+        }
     }
 }
