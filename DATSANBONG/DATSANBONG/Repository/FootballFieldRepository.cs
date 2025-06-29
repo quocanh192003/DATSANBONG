@@ -627,5 +627,43 @@ namespace DATSANBONG.Repository
             apiResponse.Result = result;
             return apiResponse;
         }
+
+        // lấy ra sân bóng theo mã nhân viên
+        public async Task<APIResponse> GetFootballFieldByStaffId()
+        {
+            var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                apiResponse.IsSuccess = false;
+                apiResponse.Status = HttpStatusCode.Unauthorized;
+                apiResponse.ErrorMessages = new List<string>() { "Unauthorized!" };
+                return apiResponse;
+            }
+            var staff = await _db.NhanViens.FirstOrDefaultAsync(x => x.MaNhanVien == userId);
+            if (staff == null)
+            {
+                apiResponse.IsSuccess = false;
+                apiResponse.Status = HttpStatusCode.NotFound;
+                apiResponse.ErrorMessages = new List<string>() { "Staff not found!" };
+                return apiResponse;
+            }
+            var footballFields = await _db.SanBongs
+                .Where(x => x.MaSanBong == staff.MaSanBong)
+                .Include(x => x.HinhAnhs)
+                .ToListAsync();
+            if (footballFields == null || !footballFields.Any())
+            {
+                apiResponse.IsSuccess = false;
+                apiResponse.Status = HttpStatusCode.NotFound;
+                apiResponse.ErrorMessages = new List<string>() { "No football fields found for this staff!" };
+                return apiResponse;
+            }
+            var footballFieldsDTO = _mapper.Map<List<SanBongDTO>>(footballFields);
+            apiResponse.IsSuccess = true;
+            apiResponse.Status = HttpStatusCode.OK;
+            apiResponse.Result = footballFieldsDTO;
+            return apiResponse;
+        }
+        
     }
 }

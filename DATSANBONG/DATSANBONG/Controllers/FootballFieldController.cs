@@ -156,5 +156,16 @@ namespace DATSANBONG.Controllers
             return StatusCode((int)response.Status, response);
 
         }
+        // Lấy danh sách sân bóng theo id nhân viên
+        [HttpGet("get-football-by-staff")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [Authorize(AuthenticationSchemes = "Bearer")]
+        public async Task<IActionResult> GetFootballFieldByStaffId()
+        {
+            var response = await _football.GetFootballFieldByStaffId();
+            return StatusCode((int)response.Status, response);
+        }
     }
 }
