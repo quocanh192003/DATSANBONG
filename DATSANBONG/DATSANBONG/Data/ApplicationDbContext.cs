@@ -21,6 +21,52 @@ namespace DATSANBONG.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<ApplicationUser>(entity =>
+            {
+                entity.ToTable("NGUOIDUNG");
+            });
+            modelBuilder.Entity<IdentityRole>(entity =>
+            {
+                entity.ToTable("VAITRO");
+            });
+            modelBuilder.Entity<IdentityUserRole<string>>(entity =>
+            {
+                entity.ToTable("VAITRONGUOIDUNG");
+            });
+            modelBuilder.Entity<SanBong>(entity =>
+            {
+                entity.ToTable("SANBONG");
+            });
+            modelBuilder.Entity<NhanVien>(entity =>
+            {
+                entity.ToTable("NHANVIEN");
+            });
+            modelBuilder.Entity<ChiTietSanBong>(entity =>
+            {
+                entity.ToTable("CHITIETSANBONG");
+            });
+            modelBuilder.Entity<LichSan>(entity =>
+            {
+                entity.ToTable("LICHSAN");
+            });
+            modelBuilder.Entity<DonDatSan>(entity =>
+            {
+                entity.ToTable("DONDATSAN");
+            });
+            modelBuilder.Entity<ChiTietDonDatSan>(entity =>
+            {
+                entity.ToTable("CHITIETDONDATSAN");
+            });
+            modelBuilder.Entity<HinhAnh>(entity =>
+            {
+                entity.ToTable("HINHANH");
+            });
+            modelBuilder.Entity<DanhGia>(entity =>
+            {
+                entity.ToTable("DANHGIA");
+            });
+
+
             // Composite key cho ChiTietSanBong
             modelBuilder.Entity<ChiTietSanBong>()
                 .HasKey(ct => new { ct.MaSanBong, ct.MaSanCon });
